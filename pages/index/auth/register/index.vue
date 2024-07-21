@@ -48,6 +48,7 @@
               />
               <label for="ac">Float Label</label>
             </FloatLabel>
+            <button @click="register">test</button>
           </div>
         </SplitterPanel>
         <SplitterPanel class="flex items-center justify-center" :size="35">
@@ -71,6 +72,18 @@ export default {
       this.items = [...Array(10).keys()].map(
         (item) => event.query + "-" + item
       );
+    },
+    async register() {
+      const { email } = await useFetch("/api/auth/register", {
+        method: "post",
+        body: {
+          email: "test@admin.com",
+          password: "test",
+          name: "dasdas",
+          phoneNumber: "0192312321321",
+        },
+      });
+      console.log(email);
     },
   },
 };
