@@ -20,11 +20,24 @@ model User {
   name        String
   phoneNumber String   @unique
   role        Role     @default(USER)
+  isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+
+  verificationCode VerificationCode?
 }
 
 enum Role {
   ADMIN
   USER
+}
+
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  code      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }
