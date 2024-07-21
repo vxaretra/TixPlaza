@@ -1,7 +1,8 @@
 import vine, { errors } from "@vinejs/vine"
-import { ReqPostRegister } from "~/dto/auth"
+import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth"
 import { prisma } from "~/prisma/db"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
 
 async function validatePostRegister(req: ReqPostRegister) {
   try {
@@ -13,9 +14,9 @@ async function validatePostRegister(req: ReqPostRegister) {
     });
 
     await vine.validate({ schema: schema, data: req });
-  } catch (error) {
-    if (error instanceof errors.E_VALIDATION_ERROR) {
-      throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: error.messages });
+  } catch (err) {
+    if (err instanceof errors.E_VALIDATION_ERROR) {
+      throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: err.messages });
     }
   }
 }
@@ -27,7 +28,19 @@ async function hashPassword(password: string): Promise<string> {
   return hashedPassword;
 }
 
-export default defineEventHandler(async (event) => {
+function signJwt(payload: string | Buffer | object, secret: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    jwt.sign(payload, secret, { expiresIn: "15m" }, function (err, encoded) {
+      if (err) {
+        reject(err);
+        throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to sign jwt", data: err.message })
+      }
+      resolve(String(encoded));
+    })
+  })
+}
+
+export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
   const body = await readBody<ReqPostRegister>(event);
 
   await validatePostRegister(body);
@@ -46,6 +59,17 @@ export default defineEventHandler(async (event) => {
     }
   })
 
+  const payload: AuthTokenPayload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+  };
+
+  const jwtSecret = process.env.JWT_SECRET || "";
+  const token = await signJwt(payload, jwtSecret);
+
   setResponseStatus(event, 201);
-  return { email: user.email };
+  return { data: { token: token } };
 })
