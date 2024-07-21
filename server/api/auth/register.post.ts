@@ -1,6 +1,7 @@
 import vine, { errors } from "@vinejs/vine"
 import { ReqPostRegister } from "~/dto/auth"
 import { prisma } from "~/prisma/db"
+import bcrypt from "bcrypt"
 
 async function validatePostRegister(req: ReqPostRegister) {
   try {
@@ -19,6 +20,13 @@ async function validatePostRegister(req: ReqPostRegister) {
   }
 }
 
+async function hashPassword(password: string): Promise<string> {
+  const SALT_ROUND = 10;
+  const salt = await bcrypt.genSalt(SALT_ROUND);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  return hashedPassword;
+}
+
 export default defineEventHandler(async (event) => {
   const body = await readBody<ReqPostRegister>(event);
 
@@ -32,7 +40,7 @@ export default defineEventHandler(async (event) => {
   const user = await prisma.user.create({
     data: {
       email: body.email,
-      password: body.password,
+      password: await hashPassword(body.password),
       name: body.name,
       phoneNumber: body.phoneNumber,
     }
