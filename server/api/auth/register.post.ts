@@ -3,6 +3,7 @@ import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth"
 import { prisma } from "~/prisma/db"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import { randomFromInterval } from "~/utils";
 
 async function validatePostRegister(req: ReqPostRegister) {
   try {
@@ -40,6 +41,36 @@ function signJwt(payload: string | Buffer | object, secret: string): Promise<str
   })
 }
 
+async function emailVerificationCode(to: string, code: number) {
+  const RESEND_URL = process.env.RESEND_URL;
+  const RESEND_TOKEN = process.env.RESEND_TOKEN;
+
+  if (RESEND_URL === undefined || RESEND_TOKEN === undefined) {
+    throw createError("Failed to send verification email");
+  }
+
+  const body = {
+    "from": "TixPlaza <tixplaza@resend.dev>",
+    "to": to,
+    "subject": "Account Verification",
+    "text": `Your verification code: ${code}`,
+  };
+
+  try {
+    await $fetch(`${RESEND_URL}/emails`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    console.log(error);
+    throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to send verification email" });
+  }
+}
+
 export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
   const body = await readBody<ReqPostRegister>(event);
 
@@ -50,14 +81,23 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Email already exists" });
   }
 
+  const verificationCode: number = randomFromInterval(100000, 999999);
+
   const user = await prisma.user.create({
     data: {
       email: body.email,
       password: await hashPassword(body.password),
       name: body.name,
       phoneNumber: body.phoneNumber,
+      verificationCode: {
+        create: {
+          code: verificationCode,
+        }
+      }
     }
-  })
+  });
+
+  await emailVerificationCode("delivered@resend.dev", verificationCode);
 
   const payload: AuthTokenPayload = {
     id: user.id,
