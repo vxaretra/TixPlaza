@@ -1,11 +1,11 @@
 import vine, { errors } from "@vinejs/vine"
-import { ReqPostRegister } from "~/dto/auth"
+import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth"
 import { prisma } from "~/prisma/db"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
 
-export default defineEventHandler(async (event) => {
+async function validatePostRegister(req: ReqPostRegister) {
   try {
-    const body = await readBody<ReqPostRegister>(event);
-
     const schema = vine.object({
       email: vine.string().trim().email(),
       password: vine.string().trim().minLength(6).maxLength(32),
@@ -13,32 +13,63 @@ export default defineEventHandler(async (event) => {
       phoneNumber: vine.string().trim().mobile(),
     });
 
-    await vine.validate({ schema: schema, data: body });
-
-    const existingUser = await prisma.user.findFirst({ where: { email: body.email } });
-    if (existingUser !== null) {
-      setResponseStatus(event, 400);
-      return { error: "Email already exists" };
+    await vine.validate({ schema: schema, data: req });
+  } catch (err) {
+    if (err instanceof errors.E_VALIDATION_ERROR) {
+      throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: err.messages });
     }
-
-    const user = await prisma.user.create({
-      data: {
-        email: body.email,
-        password: body.password,
-        name: body.name,
-        phoneNumber: body.phoneNumber,
-      }
-    })
-
-    setResponseStatus(event, 201);
-    return { email: user.email };
-  } catch (error) {
-    if (error instanceof errors.E_VALIDATION_ERROR) {
-      setResponseStatus(event, 400);
-      return { error: error.messages };
-    }
-
-    setResponseStatus(event, 500);
-    return { error: "Internal Server Error" };
   }
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const SALT_ROUND = 10;
+  const salt = await bcrypt.genSalt(SALT_ROUND);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  return hashedPassword;
+}
+
+function signJwt(payload: string | Buffer | object, secret: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    jwt.sign(payload, secret, { expiresIn: "15m" }, function (err, encoded) {
+      if (err) {
+        reject(err);
+        throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to sign jwt", data: err.message })
+      }
+      resolve(String(encoded));
+    })
+  })
+}
+
+export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
+  const body = await readBody<ReqPostRegister>(event);
+
+  await validatePostRegister(body);
+
+  const existingUser = await prisma.user.findFirst({ where: { email: body.email } });
+  if (existingUser !== null) {
+    throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Email already exists" });
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      email: body.email,
+      password: await hashPassword(body.password),
+      name: body.name,
+      phoneNumber: body.phoneNumber,
+    }
+  })
+
+  const payload: AuthTokenPayload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+  };
+
+  const jwtSecret = process.env.JWT_SECRET || "";
+  const token = await signJwt(payload, jwtSecret);
+
+  setResponseStatus(event, 201);
+  return { data: { token: token } };
 })
