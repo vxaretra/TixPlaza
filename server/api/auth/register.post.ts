@@ -9,7 +9,7 @@ async function validatePostRegister(req: ReqPostRegister) {
     try {
         const schema = vine.object({
             email: vine.string().trim().email(),
-            password: vine.string().trim().minLength(6).maxLength(32),
+            password: vine.string().minLength(6).maxLength(32),
             name: vine.string().trim().minLength(1).maxLength(255),
             phoneNumber: vine.string().trim().mobile(),
         });

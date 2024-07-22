@@ -9,7 +9,7 @@ async function validatePostLogin(req: ReqPostLogin) {
     try {
         const schema = vine.object({
             email: vine.string().trim().email(),
-            password: vine.string().trim().minLength(6).maxLength(32),
+            password: vine.string().minLength(6).maxLength(32),
         });
 
         await vine.validate({ schema: schema, data: req });
