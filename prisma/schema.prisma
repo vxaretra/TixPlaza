@@ -41,3 +41,27 @@ model VerificationCode {
 
   user User @relation(fields: [userId], references: [id])
 }
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  name        String
+  copywriting String   @db.Text
+  start       DateTime
+  end         DateTime
+  price       Decimal  @db.Decimal(10, 2)
+  quota       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  medias TicketMedia[]
+}
+
+model TicketMedia {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+}
