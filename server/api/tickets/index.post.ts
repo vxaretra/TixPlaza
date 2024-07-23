@@ -7,8 +7,8 @@ async function validatePostTickets(req: ReqPostTickets) {
         const schema = vine.object({
             name: vine.string().trim().minLength(1).maxLength(255),
             copywriting: vine.string().minLength(1).maxLength(4096),
-            start: vine.date(),
-            end: vine.date().afterOrSameAs("start"),
+            start: vine.date({ formats: "YYYY-MM-DD HH:mm" }),
+            end: vine.date({ formats: "YYYY-MM-DD HH:mm" }).afterOrSameAs("start"),
             price: vine.number().min(0),
             quota: vine.number().min(0),
             medias: vine.array(vine.string().url()),
