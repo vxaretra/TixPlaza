@@ -75,3 +75,7 @@ export type ResPutTickets = {
         medias: string[]
     }
 }
+
+export type ResDeleteTickets = {
+    data: null
+}
