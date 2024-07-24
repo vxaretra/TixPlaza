@@ -1,5 +1,5 @@
 import vine, { errors } from "@vinejs/vine";
-import { ReqPostTickets } from "~/dto/tickets";
+import { ReqPostTickets, ResPostTickets } from "~/dto/tickets";
 import { prisma } from "~/prisma/db";
 
 async function validatePostTickets(req: ReqPostTickets) {
@@ -39,7 +39,23 @@ export default defineEventHandler(async (event) => {
                 create: body.medias.map((media) => { return { url: media } }),
             },
         },
+        include: {
+            medias: true,
+        },
     });
 
-    return ticket;
+    const response: ResPostTickets = {
+        data: {
+            name: ticket.name,
+            copywriting: ticket.copywriting,
+            start: ticket.start.toISOString(),
+            end: ticket.end.toISOString(),
+            price: ticket.price.toNumber(),
+            quota: ticket.quota,
+            medias: ticket.medias.map((media) => media.url),
+        },
+    };
+
+    setResponseStatus(event, 201);
+    return response;
 });
