@@ -17,3 +17,17 @@ export type ResPostTickets = {
     quota: number
     medias: string[]
 }
+
+export type ResGetTicketDetail = {
+    data: {
+        id: number
+        name: string
+        copywriting: string
+        start: string
+        end: string
+        price: number
+        quota: number
+        createdAt: string
+        updatedAt: string
+    }
+}
