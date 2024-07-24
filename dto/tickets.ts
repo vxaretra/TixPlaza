@@ -53,3 +53,25 @@ export type ResGetTicketDetail = {
         updatedAt: string
     }
 }
+
+export type ReqPutTickets = {
+    name: string
+    copywriting: string
+    start: string | number
+    end: string | number
+    price: string | number
+    quota: string | number
+    medias: string[]
+}
+
+export type ResPutTickets = {
+    data: {
+        name: string
+        copywriting: string
+        start: string
+        end: string
+        price: number
+        quota: number
+        medias: string[]
+    }
+}
