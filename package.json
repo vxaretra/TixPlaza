@@ -22,6 +22,7 @@
     "vue": "latest"
   },
   "devDependencies": {
+    "@nuxt/types": "^2.18.1",
     "@primevue/nuxt-module": "^4.0.0",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
