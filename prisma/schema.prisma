@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String
+  phoneNumber String   @unique
+  role        Role     @default(USER)
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  verificationCode VerificationCode?
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  code      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  name        String
+  copywriting String   @db.Text
+  start       DateTime
+  end         DateTime
+  price       Decimal  @db.Decimal(10, 2)
+  quota       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  medias TicketMedia[]
+}
+
+model TicketMedia {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+}
