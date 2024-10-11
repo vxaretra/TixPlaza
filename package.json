@@ -11,19 +11,19 @@
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.12.1",
-    "@primevue/themes": "^4.0.0",
     "@prisma/client": "5.17.0",
+    "@quasar/extras": "^1.16.12",
     "@vinejs/vine": "^2.1.0",
     "bcrypt": "^5.1.1",
+    "crypto-js": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.12.4",
-    "primeicons": "^7.0.0",
-    "primevue": "^4.0.0",
+    "nuxt-quasar-ui": "^2.1.6",
+    "quasar": "^2.17.0",
     "vue": "latest"
   },
   "devDependencies": {
     "@nuxt/types": "^2.18.1",
-    "@primevue/nuxt-module": "^4.0.0",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
     "prisma": "^5.17.0"

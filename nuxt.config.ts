@@ -1,9 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-// import Aura from '@primevue/themes/aura';
-// import Nora from '@primevue/themes/nora';
-import Lara from '@primevue/themes/lara';
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
@@ -12,17 +8,26 @@ export default defineNuxtConfig({
   ],
 
   css: [
-    'primeicons/primeicons.css', // Tambahkan PrimeIcons di sini
-    // CSS lain yang mungkin Anda miliki
+    
   ],
 
-  modules: ["@nuxtjs/tailwindcss", "@primevue/nuxt-module"],
+  modules: ["@nuxtjs/tailwindcss", 'nuxt-quasar-ui'],
 
-  primevue: {
-    options: {
-        theme: {
-            preset: Lara,
-        }
-    }
+  quasar: {
+    // Configurable Component Defaults
+    // components: {
+    //   defaults: {
+    //     QBtn: {
+    //       dense: true,
+    //       flat: true,
+    //     },
+    //     QInput: {
+    //       dense: true
+    //     }
+    //   }
+    // }
+    plugins: 
+      ['Notify', 'Loading']
+    ,
   },
 })
