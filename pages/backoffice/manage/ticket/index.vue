@@ -11,7 +11,7 @@
             color="secondary"
             icon-right="add_box"
             label="Tambah Tiket"
-            @click="dialog = true"
+            @click="openDialog('tambah')"
           />
           <!-- <q-breadcrumbs
             class="text-cyan"
@@ -102,11 +102,25 @@
             no-data-label="I didn't find anything for you"
             :columns="columns"
             row-key="name"
+            :visible-columns="visible"
           >
             <template v-slot:body-cell-aksi="props">
-              <td class="flex justify-center w-full h-full space-x-2">
-                <q-btn color="red" icon="delete_forever" class="w-1/4" />
-                <q-btn color="secondary" icon="edit" class="w-1/4" />
+              <td
+                :props="props"
+                class="flex justify-center w-full h-full space-x-2"
+              >
+                <q-btn
+                  color="red"
+                  icon="delete_forever"
+                  class="w-1/4"
+                  @click="openModalDelete(props.row.id)"
+                />
+                <q-btn
+                  color="secondary"
+                  icon="edit"
+                  class="w-1/4"
+                  @click="openDialog(props.row.id, 'edit')"
+                />
               </td>
             </template>
           </q-table>
@@ -114,6 +128,28 @@
       </q-card-section>
     </q-card>
   </div>
+
+  <q-dialog v-model="confirmDialog" backdrop-filter="blur(4px)">
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-avatar icon="report" color="red" text-color="white" />
+        <span class="q-ml-sm"
+          >Apakah anda yakin ingin menghapus tiket ini?</span
+        >
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn
+          flat
+          label="Yakin"
+          color="primary"
+          @click="deleteTicket"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 
   <q-dialog
     v-model="dialog"
@@ -153,15 +189,24 @@
         </q-btn>
       </q-bar>
       <AddTicket
+        v-if="dialogOpened == 'add'"
         :statusDialog="dialog"
         @updateStatusDialog="updateDialog"
       ></AddTicket>
+      <EditTicket
+        v-if="dialogOpened == 'edit'"
+        :statusDialog="dialog"
+        :idTicket="id"
+        @updateStatusDialog="updateDialog"
+      ></EditTicket>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
+import { mdiPrinterPosSync } from "@quasar/extras/mdi-v7";
 import AddTicket from "./components/addTicket.vue";
+import EditTicket from "./components/editTicket.vue";
 import { useQuasar } from "quasar";
 import { ref, reactive, defineProps, defineEmits } from "vue";
 
@@ -171,8 +216,21 @@ definePageMeta({
 
 const q = useQuasar();
 
+const visible = ref([
+  "no",
+  "ticket",
+  "copywriting",
+  "price",
+  "quota",
+  "start",
+  "end",
+  "aksi",
+]);
+
 const dialog = ref(false);
+const confirmDialog = ref(false);
 const maximizedToggle = ref(true);
+
 function updateDialog(newStatus) {
   console.log(newStatus);
   dialog.value = newStatus;
@@ -180,6 +238,19 @@ function updateDialog(newStatus) {
 }
 
 const columns = [
+  {
+    name: "id",
+    label: "id",
+    field: "id",
+  },
+  {
+    name: "no",
+    required: true,
+    label: "No.",
+    align: "left",
+    field: "no",
+    sortable: true,
+  },
   {
     name: "ticket",
     required: true,
@@ -224,40 +295,63 @@ const getData = async () => {
       data != null
         ? data.map((obj, index) => ({
             ...obj,
+            no: index + 1,
           }))
         : [];
 
     // paginationConfig.total = data.totalElements;
     dataTable.value = newData;
-
-    // const newData =
-    //   data.data != null
-    //     ? data.data.map((obj, index) => ({
-    //         ...obj,
-    //         daya: obj.daya
-    //           .toString()
-    //           .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, "."),
-    //         kapasitas_output_inverter: obj.kapasitas_output_inverter
-    //           .toString()
-    //           .replace(/\.0\b/, ""),
-    //         kapasitas_modul_surya: obj.kapasitas_modul_surya
-    //           .toString()
-    //           .replace(/\.0\b/, ""),
-    //       }))
-    //     : [];
-
-    // paginationConfig.total = data.totalElements;
-    // datas.value = newData;
   } catch (error) {
     console.log(error);
-
-    // datas.value = [];
-    // if (!error.response?.data?.message.toLowerCase().includes("token")) {
-    //   showNotificationError(error.response?.data?.message || "Unknown error");
-    // }
-    // ////console.log(error);
   } finally {
     q.loading.hide();
+  }
+};
+
+const id = ref("");
+
+const dialogOpened = ref("");
+
+const openDialog = (idTicket = "", status) => {
+  id.value = idTicket;
+  dialogOpened.value = status;
+  dialog.value = true;
+  console.log(dialogOpened.value);
+};
+
+const openModalDelete = (idTicket) => {
+  id.value = idTicket;
+  confirmDialog.value = true;
+};
+
+const deleteTicket = async () => {
+  console.log(id.value);
+
+  try {
+    q.loading.show();
+
+    const response = await $fetch(`/api/tickets/${id.value}`, {
+      method: "DELETE",
+    });
+    console.log(response);
+    q.notify({
+      type: "positive",
+      message: "Tiket berhasil dihapus",
+      position: "top",
+      timeout: 2000,
+    });
+    getData();
+  } catch (error) {
+    console.log(error);
+    q.notify({
+      type: "negative",
+      message: "Gagal menghapus tiket",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    q.loading.hide();
+    id.value = "";
   }
 };
 </script>
