@@ -436,7 +436,7 @@ const editTicket = async () => {
         copywriting: formEditTicket.description,
         start: formEditTicket.startDate,
         end: formEditTicket.endDate,
-        price: parseInt(formEditTicket.price),
+        price: parseInt(formEditTicket.price.replace(/\./g, "")),
         quota: parseInt(formEditTicket.quota),
         medias: formEditTicket.image,
       },

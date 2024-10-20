@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/leaflet": "^1.2.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@prisma/client": "5.17.0",
     "@quasar/extras": "^1.16.12",

@@ -92,7 +92,7 @@
       <q-separator></q-separator>
       <q-card-section>
         <div class="q-pa-md">
-          <q-btn label="data" color="primary" @click="getData" />
+          <!-- <q-btn label="data" color="primary" @click="getData" /> -->
           <q-table
             :dense="$q.screen.lt.md"
             flat
@@ -119,7 +119,7 @@
                   color="secondary"
                   icon="edit"
                   class="w-1/4"
-                  @click="openDialog(props.row.id, 'edit')"
+                  @click="openDialog('edit', props.row.id)"
                 />
               </td>
             </template>
@@ -189,7 +189,7 @@
         </q-btn>
       </q-bar>
       <AddTicket
-        v-if="dialogOpened == 'add'"
+        v-if="dialogOpened == 'tambah'"
         :statusDialog="dialog"
         @updateStatusDialog="updateDialog"
       ></AddTicket>
@@ -229,13 +229,16 @@ const visible = ref([
 
 const dialog = ref(false);
 const confirmDialog = ref(false);
-const maximizedToggle = ref(true);
+const maximizedToggle = ref(false);
 
 function updateDialog(newStatus) {
   console.log(newStatus);
   dialog.value = newStatus;
   getData();
 }
+onMounted(() => {
+  getData();
+});
 
 const columns = [
   {
@@ -312,7 +315,7 @@ const id = ref("");
 
 const dialogOpened = ref("");
 
-const openDialog = (idTicket = "", status) => {
+const openDialog = (status, idTicket = "") => {
   id.value = idTicket;
   dialogOpened.value = status;
   dialog.value = true;

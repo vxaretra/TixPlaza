@@ -11,7 +11,11 @@ export default defineNuxtConfig({
     
   ],
 
-  modules: ["@nuxtjs/tailwindcss", 'nuxt-quasar-ui'],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    'nuxt-quasar-ui',
+    '@nuxtjs/leaflet',
+  ],
 
   quasar: {
     // Configurable Component Defaults

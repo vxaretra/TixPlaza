@@ -404,7 +404,7 @@ const addTicket = async () => {
         copywriting: formAddTicket.description,
         start: formAddTicket.startDate,
         end: formAddTicket.endDate,
-        price: parseInt(formAddTicket.price),
+        price: parseInt(formAddTicket.price.replace(/\./g, "")),
         quota: parseInt(formAddTicket.quota),
         medias: formAddTicket.image,
       },

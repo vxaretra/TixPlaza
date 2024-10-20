@@ -107,10 +107,10 @@
         </q-toolbar-title>
       </q-toolbar>
       <div align="center" class="text-black space-x-1" style="font-size: 2.5em">
-        <q-icon name="instagram" />
-        <q-icon name="instagram" />
         <q-icon name="facebook" />
-        <q-icon name="instagram" />
+        <q-icon name="facebook" />
+        <q-icon name="facebook" />
+        <q-icon name="facebook" />
       </div>
       <div class="flex justify-center space-x-5 pt-3">
         <NuxtLink

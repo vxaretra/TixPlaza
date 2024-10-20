@@ -106,9 +106,12 @@
           >
             <q-img
               class="rounded-borders col-6 full-height"
-              src="https://cdn.quasar.dev/img/mountains.jpg"
+              :src="promoImg[1]"
             />
-            <q-img class="rounded-borders col-6 full-height" :src="promoImg" />
+            <q-img
+              class="rounded-borders col-6 full-height"
+              :src="promoImg[0]"
+            />
           </div>
         </q-carousel-slide>
         <q-carousel-slide :name="2" class="column no-wrap">
@@ -117,11 +120,11 @@
           >
             <q-img
               class="rounded-borders col-6 full-height"
-              src="https://cdn.quasar.dev/img/parallax2.jpg"
+              :src="promoImg[2]"
             />
             <q-img
               class="rounded-borders col-6 full-height"
-              src="https://cdn.quasar.dev/img/quasar.jpg"
+              :src="promoImg[3]"
             />
           </div>
         </q-carousel-slide>
@@ -131,11 +134,11 @@
           >
             <q-img
               class="rounded-borders col-6 full-height"
-              src="https://cdn.quasar.dev/img/cat.jpg"
+              :src="promoImg[4]"
             />
             <q-img
               class="rounded-borders col-6 full-height"
-              src="https://cdn.quasar.dev/img/linux-avatar.png"
+              :src="promoImg[5]"
             />
           </div>
         </q-carousel-slide>
@@ -164,7 +167,8 @@
           v-for="(product, index) in products"
           :key="index"
           :name="product.name"
-          :description="product.description"
+          :description="product.copywriting"
+          :price="product.price"
           :image="product.image"
         />
       </div>
@@ -172,32 +176,13 @@
 
     <!-- parallax -->
     <div class="mx-auto w-4/6 rounded-xl">
-      <q-parallax>
-        <template v-slot:media>
-          <img src="https://cdn.quasar.dev/img/parallax2.jpg" />
-        </template>
-
-        <template v-slot:content="scope">
-          <div
-            class="absolute column items-center"
-            :style="{
-              opacity: 0.45 + (1 - scope.percentScrolled) * 0.55,
-              top: scope.percentScrolled * 60 + '%',
-              left: 0,
-              right: 0,
-            }"
-          >
-            <img
-              src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg"
-              style="width: 150px; height: 150px"
-            />
-            <div class="text-h3 text-white text-center">TixPlaza</div>
-            <div class="text-h6 text-grey-3 text-center">
-              your one stop healing provider
-            </div>
-          </div>
-        </template>
-      </q-parallax>
+      <div class="q-pa-md q-gutter-md">
+        <div class="row justify-between">
+          <q-parallax src="https://cdn.quasar.dev/img/parallax2.jpg">
+            <h1 class="text-white text-4xl">TixPlaza</h1>
+          </q-parallax>
+        </div>
+      </div>
     </div>
 
     <!-- -->
@@ -255,31 +240,19 @@ definePageMeta({
   layout: "landingpage",
 });
 const slide = ref(1);
-const promoImg = ref("/img/promo1.jpg");
-const promoReason = ref("/img/order-confirmed-1-29.png");
-// Sample product data
-const products = ref([
-  {
-    name: "Product 1",
-    description: "This is an amazing product.",
-    image: "https://via.placeholder.com/300",
-  },
-  {
-    name: "Product 2",
-    description: "You will love this one!",
-    image: "https://via.placeholder.com/300",
-  },
-  {
-    name: "Product 3",
-    description: "Best-selling product in our marketplace.",
-    image: "https://via.placeholder.com/300",
-  },
-  {
-    name: "Product 1",
-    description: "This is an amazing product.",
-    image: "https://via.placeholder.com/300",
-  },
+const promoImg = ref([
+  "/img/promo1.jpg",
+  "/img/promo2.avif",
+  "/img/promo3.png",
+  "/img/promo4.avif",
+  "/img/promo5.jpg",
+  "/img/promo6.jpg",
 ]);
+const promoReason = ref("/img/order-confirmed-1-29.png");
+const concertImg = ref("/img/concert.jpg");
+const ticketImg = ref("/img/ticket.png");
+// Sample product data
+const products = ref([]);
 
 const productsSection = ref(null);
 
@@ -304,12 +277,14 @@ const getData = async () => {
         ? data.map((obj, index) => ({
             ...obj,
             no: index + 1,
+            price: obj.price.toString(),
           }))
         : [];
 
     // paginationConfig.total = data.totalElements;
     // dataTable.value = newData;
     console.log(newData);
+    products.value = newData;
   } catch (error) {
     console.log(error);
   } finally {
