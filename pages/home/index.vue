@@ -12,7 +12,7 @@
         <div class="flex justify-center">
           <q-input
             outlined
-            v-model="text"
+            v-model="search"
             label="Cari Tiket"
             rounded
             bg-color="white"
@@ -22,7 +22,7 @@
               <q-icon
                 v-if="text !== ''"
                 name="close"
-                @click="text = ''"
+                @click="search = ''"
                 class="cursor-pointer"
               />
               <q-icon name="search" />
@@ -253,6 +253,7 @@ const concertImg = ref("/img/concert.jpg");
 const ticketImg = ref("/img/ticket.png");
 // Sample product data
 const products = ref([]);
+const search = ref("");
 
 const productsSection = ref(null);
 

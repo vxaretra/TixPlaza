@@ -63,7 +63,9 @@
         <div class="md:w-1/2 p-4">
           <h2 class="text-2xl font-semibold mb-2">{{ name }}</h2>
           <p class="text-gray-700 mb-4">{{ description }}</p>
-          <div class="text-xl font-bold text-blue-600 mb-4">{{ price }}</div>
+          <div class="text-xl font-bold text-blue-600 mb-4">
+            Rp. {{ price }}
+          </div>
 
           <!-- Quantity Selector -->
           <div class="flex items-center mb-4">
