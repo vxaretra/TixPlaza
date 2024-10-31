@@ -4,14 +4,17 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
 
-  plugins: [ 
-  ],
+  plugins: ['~/plugins/firebase.js'],
 
   css: [
     
   ],
 
-  modules: ["@nuxtjs/tailwindcss", 'nuxt-quasar-ui'],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    'nuxt-quasar-ui',
+    '@nuxtjs/leaflet',
+  ],
 
   quasar: {
     // Configurable Component Defaults

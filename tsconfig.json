@@ -1,4 +1,13 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],  // Alias @ mengarah ke root folder
+      "@components/*": ["components/*"],
+      "@assets/*": ["assets/*"],
+      "@plugins/*": ["plugins/*"]
+    }
+  },
   "extends": "./.nuxt/tsconfig.json",
 }

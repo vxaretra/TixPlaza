@@ -10,12 +10,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/leaflet": "^1.2.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@prisma/client": "5.17.0",
     "@quasar/extras": "^1.16.12",
     "@vinejs/vine": "^2.1.0",
     "bcrypt": "^5.1.1",
     "crypto-js": "^4.2.0",
+    "firebase": "^10.14.1",
     "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.12.4",
     "nuxt-quasar-ui": "^2.1.6",
