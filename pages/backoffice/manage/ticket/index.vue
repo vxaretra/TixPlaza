@@ -104,10 +104,57 @@
             row-key="name"
             :visible-columns="visible"
           >
+            <template v-slot:body-cell-img="props">
+              <td :props="props">
+                <q-item class="items-center justify-center">
+                  <!-- Section untuk gambar -->
+                  <q-item-section side class="text-center">
+                    <q-img
+                      :src="
+                        props.row.medias[0]?.url
+                          ? props.row.medias[0].url
+                          : 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png'
+                      "
+                      :ratio="4 / 3"
+                      class="w-[100px] rounded hover:cursor-pointer"
+                      fit="contain"
+                      @click="dialogPreview(props.row.id)"
+                    />
+                  </q-item-section>
+
+                  <!-- Section untuk judul dan deskripsi -->
+                  <q-item-section>
+                    <div class="text-h5 font-bold q-mb-xs">
+                      {{ props.row.name }}
+                    </div>
+                    <div class="text-caption text-grey-6">
+                      {{ props.row.copywriting }}
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </td>
+            </template>
+
+            <template v-slot:body-cell-status="props">
+              <td
+                :props="props"
+                class="justify-center text-center w-full h-full space-x-2"
+              >
+                <q-toggle
+                  v-model="status"
+                  checked-icon="check"
+                  color="green"
+                  keep-color
+                  unchecked-icon="clear"
+                  size="lg"
+                />
+              </td>
+            </template>
+
             <template v-slot:body-cell-aksi="props">
               <td
                 :props="props"
-                class="flex justify-center w-full h-full space-x-2"
+                class="justify-center text-center w-full h-full space-x-2"
               >
                 <q-btn
                   color="red"
@@ -129,6 +176,7 @@
     </q-card>
   </div>
 
+  <!-- Delete Dialog -->
   <q-dialog v-model="confirmDialog" backdrop-filter="blur(4px)">
     <q-card>
       <q-card-section class="row items-center">
@@ -151,6 +199,7 @@
     </q-card>
   </q-dialog>
 
+  <!-- Add & Edit Ticket-->
   <q-dialog
     v-model="dialog"
     persistent
@@ -201,6 +250,26 @@
       ></EditTicket>
     </q-card>
   </q-dialog>
+
+  <!--Image Preview Dialog-->
+  <q-dialog v-model="photoPreview" class="">
+    <q-carousel
+      swipeable
+      animated
+      v-model="slide"
+      thumbnails
+      infinite
+      arrows
+      class="w-full border-4"
+    >
+      <q-carousel-slide
+        v-for="(image, index) in imagePreview"
+        :key="index"
+        :name="index"
+        :img-src="image"
+      />
+    </q-carousel>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -224,12 +293,36 @@ const visible = ref([
   "quota",
   "start",
   "end",
+  "status",
   "aksi",
 ]);
 
 const dialog = ref(false);
 const confirmDialog = ref(false);
 const maximizedToggle = ref(false);
+
+const photoPreview = ref(false);
+const slide = ref(0);
+const imagePreview = ref([]);
+const status = ref(false);
+
+const dialogPreview = (id) => {
+  q.loading.show();
+  slide.value = 0;
+  const ticket = dataTable.value.find((ticket) => ticket.id === id); // Mencari tiket dengan id yang sesuai
+
+  imagePreview.value =
+    ticket && ticket.medias.length > 0
+      ? ticket.medias.map((media) => media.url) // Jika ada media, ambil semua media.url
+      : [
+          "https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png",
+        ]; // Jika tidak ada media, gunakan URL default
+
+  setTimeout(function () {
+    q.loading.hide();
+    photoPreview.value = true;
+  }, 1500);
+};
 
 function updateDialog(newStatus) {
   console.log(newStatus);
@@ -255,21 +348,28 @@ const columns = [
     sortable: true,
   },
   {
-    name: "ticket",
+    name: "img",
     required: true,
-    label: "Ticket",
+    label: "Info Tiket",
     align: "left",
-    field: (row) => row.name,
-    format: (val) => `${val}`,
-    sortable: true,
+    field: "img",
   },
-  {
-    name: "copywriting",
-    align: "center",
-    label: "Deskripsi",
-    field: "copywriting",
-    sortable: true,
-  },
+  // {
+  //   name: "ticket",
+  //   required: true,
+  //   label: "Ticket",
+  //   align: "left",
+  //   field: (row) => row.name,
+  //   format: (val) => `${val}`,
+  //   sortable: true,
+  // },
+  // {
+  //   name: "copywriting",
+  //   align: "center",
+  //   label: "Deskripsi",
+  //   field: "copywriting",
+  //   sortable: true,
+  // },
   {
     name: "price",
     align: "center",
@@ -281,6 +381,12 @@ const columns = [
   { name: "quota", align: "center", label: "Stok", field: "quota" },
   { name: "start", align: "center", label: "Tanggal Mulai", field: "start" },
   { name: "end", align: "center", label: "Tanggal Selesai", field: "end" },
+  {
+    name: "status",
+    align: "center",
+    label: "Status",
+    field: "status",
+  },
   { name: "aksi", align: "center", label: "", field: "aksi" },
 ];
 
@@ -299,6 +405,11 @@ const getData = async () => {
         ? data.map((obj, index) => ({
             ...obj,
             no: index + 1,
+            price: `Rp. ${obj.price
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`,
+            start: new Date(obj.start).toLocaleString(),
+            end: new Date(obj.end).toLocaleString(),
           }))
         : [];
 
