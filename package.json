@@ -19,6 +19,7 @@
     "crypto-js": "^4.2.0",
     "firebase": "^10.14.1",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "nuxt": "^3.12.4",
     "nuxt-quasar-ui": "^2.1.6",
     "quasar": "^2.17.0",
@@ -28,6 +29,7 @@
     "@nuxt/types": "^2.18.1",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/nodemailer": "^6.4.16",
     "prisma": "^5.17.0"
   }
 }

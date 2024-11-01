@@ -6,8 +6,23 @@ export default defineNuxtConfig({
 
   plugins: ['~/plugins/firebase.js'],
 
+  runtimeConfig: {
+    jwtSecret: "",
+    smtpHost: "",
+    smtpUser: "",
+    smtpPass: "",
+    public: {
+      firebaseKey: "",
+      firebaseDomain: "",
+      firebaseProjectid: "",
+      firebaseStorageBucket: "",
+      firebaseMessagingSenderid: "",
+      firebaseAppid: "",
+    },
+  },
+
   css: [
-    
+
   ],
 
   modules: [
@@ -29,7 +44,7 @@ export default defineNuxtConfig({
     //     }
     //   }
     // }
-    plugins: 
+    plugins:
       ['Notify', 'Loading']
     ,
   },

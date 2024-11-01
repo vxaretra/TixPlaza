@@ -3,7 +3,6 @@ import { AuthTokenPayload, ReqPostLogin, ResPostLogin } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt"
 import { signJwt } from "~/utils";
-import { config } from "~/utils/config";
 
 async function validatePostLogin(req: ReqPostLogin) {
     try {
@@ -21,6 +20,8 @@ async function validatePostLogin(req: ReqPostLogin) {
 }
 
 export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
+    const config = useRuntimeConfig();
+
     const body = await readBody<ReqPostLogin>(event);
 
     await validatePostLogin(body);
@@ -43,7 +44,7 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
         role: user.role,
     };
 
-    const token = await signJwt(payload, config.JWT_SECRET);
+    const token = await signJwt(payload, config.jwtSecret);
 
     const response: ResPostLogin = {
         data: {
