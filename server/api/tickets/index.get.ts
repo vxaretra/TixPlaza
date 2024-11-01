@@ -24,6 +24,9 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
                 contains: query.q,
             }
         },
+        orderBy: {
+            name: "asc",
+        },
         skip: (query.page - 1) * query.limit, take: query.limit,
         include: {
             medias: true
