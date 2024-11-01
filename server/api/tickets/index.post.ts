@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
             end: new Date(body.end),
             price: body.price,
             quota: body.quota,
+            lat: body.lat,
+            lon: body.lon,
             medias: {
                 create: body.medias.map((media) => { return { url: media } }),
             },
@@ -52,6 +54,8 @@ export default defineEventHandler(async (event) => {
             end: ticket.end.toISOString(),
             price: ticket.price.toNumber(),
             quota: ticket.quota,
+            lat: ticket.lat,
+            lon: ticket.lon,
             medias: ticket.medias.map((media) => media.url),
         },
     };

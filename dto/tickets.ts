@@ -5,6 +5,8 @@ export type ReqPostTickets = {
     end: Date
     price: number
     quota: number
+    lat: number | null
+    lon: number | null
     medias: string[]
 }
 
@@ -16,6 +18,8 @@ export type ResPostTickets = {
         end: string
         price: number
         quota: number
+        lat: number | null
+        lon: number | null
         medias: string[]
     }
 }
