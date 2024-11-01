@@ -16,13 +16,13 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
     if (query.page === undefined) query.page = 1;
     if (query.limit === undefined) query.limit = 10;
 
-    const tickets = await prisma.ticket.findMany({ skip: (query.page - 1) * query.limit, take: query.limit, 
-        include : {
+    const tickets = await prisma.ticket.findMany({
+        skip: (query.page - 1) * query.limit, take: query.limit,
+        include: {
             medias: true
-        }, 
+        },
     });
-    console.log("dari backend")
-    console.log(tickets[0].medias)
+
     const total = await prisma.ticket.count();
 
     const response: ResGetTickets = {
@@ -41,9 +41,11 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
                 end: ticket.end.toISOString(),
                 price: ticket.price.toNumber(),
                 quota: ticket.quota,
+                lat: ticket.lat,
+                lon: ticket.lon,
                 createdAt: ticket.createdAt.toISOString(),
                 updatedAt: ticket.updatedAt.toISOString(),
-                medias: ticket.medias,
+                medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
             };
         }),
     };

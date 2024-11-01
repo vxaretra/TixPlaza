@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
             quota: ticket.quota,
             lat: ticket.lat,
             lon: ticket.lon,
-            medias: ticket.medias.map((media) => media.url),
+            medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
         },
     };
 
