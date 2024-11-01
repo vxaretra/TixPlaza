@@ -1,4 +1,5 @@
 import type { $Enums } from "@prisma/client"
+import type { Jwt, JwtPayload } from "jsonwebtoken"
 
 export type ReqPostRegister = {
     email: string
@@ -30,3 +31,5 @@ export type AuthTokenPayload = {
     phoneNumber: string
     role: $Enums.Role
 }
+
+export type JwtAuthClaims = AuthTokenPayload & JwtPayload
