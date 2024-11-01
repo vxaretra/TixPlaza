@@ -17,6 +17,7 @@ export type ReqPostTickets = {
 
 export type ResPostTickets = {
     data: {
+        id: number
         name: string
         copywriting: string
         start: string
@@ -71,6 +72,7 @@ export type ResGetTicketDetail = {
 
 export type ResPutTickets = {
     data: {
+        id: number
         name: string
         copywriting: string
         start: string

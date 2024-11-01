@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
 
     const response: ResPostTickets = {
         data: {
+            id: ticket.id,
             name: ticket.name,
             copywriting: ticket.copywriting,
             start: ticket.start.toISOString(),

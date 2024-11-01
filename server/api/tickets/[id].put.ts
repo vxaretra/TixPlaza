@@ -54,6 +54,7 @@ export default defineEventHandler<Promise<ResPutTickets>>(async (event) => {
 
     const response: ResPutTickets = {
         data: {
+            id: updatedTicket.id,
             name: updatedTicket.name,
             copywriting: updatedTicket.copywriting,
             start: updatedTicket.start.toISOString(),
