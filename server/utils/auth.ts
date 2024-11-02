@@ -1,12 +1,13 @@
 import type { H3Event } from "h3"
+import { JwtAuthClaims } from "~/dto/auth";
 import { verifyJwt } from "~/utils";
 
-export async function getClaims(event: H3Event) {
+export async function getClaims(event: H3Event): Promise<JwtAuthClaims | null> {
     const config = useRuntimeConfig();
 
     const authHeader = getHeader(event, "Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "No Authorization header found" });
+        return null;
     }
 
     const token = authHeader.split(" ")[1];
