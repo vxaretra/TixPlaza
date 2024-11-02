@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     smtpHost: "",
     smtpUser: "",
     smtpPass: "",
+    xenditKey: "",
     public: {
       firebaseKey: "",
       firebaseDomain: "",
