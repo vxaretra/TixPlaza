@@ -93,7 +93,7 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
         data: {
             id: transaction.id,
             status: transaction.status.toString(),
-            paymentLink: transaction.paymentLink,
+            paymentLink: invoice.invoiceUrl,
         }
     }
     return response;
