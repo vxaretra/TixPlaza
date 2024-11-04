@@ -7,7 +7,7 @@ import { createInvoice } from "~/server/utils/xendit";
 const bodySchema = vine.object({
     items: vine.array(vine.object({
         id: vine.number(),
-        quantity: vine.number(),
+        quantity: vine.number().min(1),
     })).minLength(1).distinct("id"),
 });
 
