@@ -1,4 +1,4 @@
-type TicketMedia = {
+export type TicketMedia = {
     id: number;
     url: string;
 }
