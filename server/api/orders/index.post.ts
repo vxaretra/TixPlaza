@@ -37,7 +37,7 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
                 throw createError({ statusCode: 400, statusMessage: "Bad Request", message: `${ticket.name} is out of stock` });
             }
 
-            total += quantity + ticket.price.toNumber();
+            total += (quantity * ticket.price.toNumber());
         }
 
         const transaction = await prisma.transaction.create({
@@ -88,7 +88,6 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
             const quantity = itemQuantity.get(ticket.id) ?? 0;
 
             return {
-                id: ticket.id.toString(),
                 name: ticket.name,
                 price: ticket.price.toNumber(),
                 quantity: quantity,
