@@ -26,26 +26,56 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: "Invalid payload" });
     }
 
+    setResponseStatus(event, 200);
+    send(event);
+
     let status: TransactionStatus;
     switch (body.status) {
         case InvoiceStatus.Paid:
-            status = TransactionStatus.PAID;
+            await prisma.transaction.update({
+                where: {
+                    id: body["external_id"],
+                },
+                data: {
+                    status: TransactionStatus.PAID,
+                }
+            });
             break;
         case InvoiceStatus.Expired:
             status = TransactionStatus.EXPIRED;
+
+            await prisma.$transaction(async (prisma) => {
+                const orderTickets = await prisma.orderTickets.findMany({
+                    where: {
+                        transactionId: body["external_id"],
+                    },
+                })
+
+                for (const orderTicket of orderTickets) {
+                    await prisma.ticket.update({
+                        where: {
+                            id: orderTicket.ticketId,
+                        },
+                        data: {
+                            quota: {
+                                increment: orderTicket.quantity,
+                            },
+                        },
+                    });
+                }
+
+                await prisma.transaction.update({
+                    where: {
+                        id: body["external_id"],
+                    },
+                    data: {
+                        status: TransactionStatus.EXPIRED,
+                    }
+                });
+            });
+
             break;
         default:
             status = TransactionStatus.PENDING;
     }
-
-    await prisma.transaction.update({
-        where: {
-            id: body["external_id"],
-        },
-        data: {
-            status: status
-        }
-    });
-
-    setResponseStatus(event, 200);
 });
