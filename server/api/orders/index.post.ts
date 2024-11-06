@@ -22,40 +22,60 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
         throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input" });
     }
 
-    const tickets = await prisma.ticket.findMany({ where: { id: { in: body.items.map(item => item.id) } } });
-    if (tickets.length !== body.items.length) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input" });
-    }
-
+    let total = 0;
     const itemQuantity = new Map<number, number>();
     for (const ticket of body.items) {
         itemQuantity.set(ticket.id, ticket.quantity);
     }
 
-    let total = 0;
-    for (const ticket of tickets) {
-        const quantity = itemQuantity.get(ticket.id) || 0;
-        total += quantity + ticket.price.toNumber();
-    }
+    const { transaction, tickets } = await prisma.$transaction(async (prisma) => {
+        const tickets = await prisma.ticket.findMany({ where: { id: { in: body.items.map(item => item.id) } } });
 
-    const transaction = await prisma.transaction.create({
-        data: {
-            userId: claims.id,
-            orderItems: {
-                create: tickets.map((ticket) => {
-                    const quantity = itemQuantity.get(ticket.id) || 0;
-                    const subTotal = quantity * ticket.price.toNumber();
+        for (const ticket of tickets) {
+            const quantity = itemQuantity.get(ticket.id) ?? 0;
+            if (ticket.quota < quantity) {
+                throw createError({ statusCode: 400, statusMessage: "Bad Request", message: `${ticket.name} is out of stock` });
+            }
 
-                    return {
-                        ticketId: ticket.id,
-                        quantity: quantity,
-                        subTotal: subTotal,
-                    };
-                }),
+            total += quantity + ticket.price.toNumber();
+        }
+
+        const transaction = await prisma.transaction.create({
+            data: {
+                userId: claims.id,
+                orderItems: {
+                    create: tickets.map((ticket) => {
+                        const quantity = itemQuantity.get(ticket.id) ?? 0;
+                        const subTotal = quantity * ticket.price.toNumber();
+
+                        return {
+                            ticketId: ticket.id,
+                            quantity: quantity,
+                            subTotal: subTotal,
+                        };
+                    }),
+                },
+                total: total,
             },
-            total: total,
-        },
+        });
+
+        for (const ticket of tickets) {
+            const quantity = itemQuantity.get(ticket.id) ?? 0;
+            await prisma.ticket.update({
+                where: {
+                    id: ticket.id,
+                },
+                data: {
+                    quota: {
+                        decrement: quantity,
+                    },
+                },
+            });
+        }
+
+        return { transaction, tickets };
     });
+
 
     const xenditReq: ReqCreateInvoice = {
         customer: {
@@ -65,7 +85,7 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
         },
         transactionId: transaction.id.toString(),
         items: tickets.map((ticket) => {
-            const quantity = itemQuantity.get(ticket.id) || 0;
+            const quantity = itemQuantity.get(ticket.id) ?? 0;
 
             return {
                 id: ticket.id.toString(),
@@ -75,9 +95,7 @@ export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
             }
         }),
         total: total,
-
     }
-
 
     const invoice = await createInvoice(xenditReq);
     await prisma.transaction.update({
