@@ -8,7 +8,7 @@ const bodySchema = vine.object({
     items: vine.array(vine.object({
         id: vine.number(),
         quantity: vine.number().min(1),
-    })).minLength(1).distinct("id"),
+    })).minLength(1).maxLength(20).distinct("id"),
 });
 
 export default defineEventHandler<Promise<ResPostOrders>>(async (event) => {
