@@ -278,6 +278,7 @@ import AddTicket from "./components/addTicket.vue";
 import EditTicket from "./components/editTicket.vue";
 import { useQuasar } from "quasar";
 import { ref, reactive, defineProps, defineEmits } from "vue";
+const { $axios } = useNuxtApp();
 
 definePageMeta({
   layout: "backoffice",
@@ -309,14 +310,16 @@ const status = ref(false);
 const dialogPreview = (id) => {
   q.loading.show();
   slide.value = 0;
-  const ticket = dataTable.value.find((ticket) => ticket.id === id); // Mencari tiket dengan id yang sesuai
+  const ticket = dataTable.value.find((ticket) => ticket.id === id);
+
+  console.log(ticket);
 
   imagePreview.value =
     ticket && ticket.medias.length > 0
-      ? ticket.medias.map((media) => media.url) // Jika ada media, ambil semua media.url
+      ? ticket.medias.map((media) => media.url)
       : [
           "https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png",
-        ]; // Jika tidak ada media, gunakan URL default
+        ];
 
   setTimeout(function () {
     q.loading.hide();
@@ -396,13 +399,11 @@ const getData = async () => {
   try {
     q.loading.show();
 
-    const { data } = await $fetch("/api/tickets", {
-      method: "GET",
-    });
+    const { data } = await $axios.get("/api/tickets");
     console.log(data);
     const newData =
       data != null
-        ? data.map((obj, index) => ({
+        ? data.data.map((obj, index) => ({
             ...obj,
             no: index + 1,
             price: `Rp. ${obj.price
@@ -444,9 +445,7 @@ const deleteTicket = async () => {
   try {
     q.loading.show();
 
-    const response = await $fetch(`/api/tickets/${id.value}`, {
-      method: "DELETE",
-    });
+    const response = await $axios.delete(`/api/tickets/${id.value}`);
     console.log(response);
     q.notify({
       type: "positive",

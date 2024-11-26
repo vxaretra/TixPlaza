@@ -73,7 +73,7 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
         role: user.role,
     };
 
-    const token = await signJwt(payload, config.jwtSecret);
+    const token = await signJwt(payload, config.public.jwtSecret);
 
     const response: ResPostRegister = {
         data: { token: token },
