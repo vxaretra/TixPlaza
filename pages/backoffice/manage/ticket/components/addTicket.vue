@@ -105,8 +105,6 @@
               <!-- Responsif Carousel -->
               <div v-if="formAddTicket.image.length > 0" class="mt-4">
                 <h3 class="mb-0 pb-0">Photo Preview:</h3>
-                {{ formAddTicket.image }}
-                <!-- <div class="q-pa-md"> -->
                 <q-carousel
                   v-model="slide"
                   control-type="push"
@@ -292,13 +290,13 @@
 <script setup>
 import { useQuasar } from "quasar";
 import { ref, reactive, defineProps, defineEmits } from "vue";
-// import { useNuxtApp } from "#app";
 import { useNuxtApp } from "#app";
 import {
   ref as storageRef,
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+const { $axios } = useNuxtApp();
 
 const q = useQuasar();
 const nuxtApp = useNuxtApp();
@@ -539,17 +537,14 @@ const addTicket = async () => {
   console.log(formAddTicket);
   q.loading.show();
   try {
-    const response = await $fetch("/api/tickets", {
-      method: "POST",
-      body: {
-        name: formAddTicket.name,
-        copywriting: formAddTicket.description,
-        start: formAddTicket.startDate,
-        end: formAddTicket.endDate,
-        price: parseInt(formAddTicket.price.replace(/\./g, "")),
-        quota: parseInt(formAddTicket.quota),
-        medias: formAddTicket.image,
-      },
+    const response = await $axios.post("/api/tickets", {
+      name: formAddTicket.name,
+      copywriting: formAddTicket.description,
+      start: formAddTicket.startDate,
+      end: formAddTicket.endDate,
+      price: parseInt(formAddTicket.price.replace(/\./g, "")),
+      quota: parseInt(formAddTicket.quota),
+      medias: formAddTicket.image,
     });
     console.log("Post Tiket:", response);
     q.notify({
@@ -564,7 +559,7 @@ const addTicket = async () => {
     console.log(error.response);
     q.notify({
       type: "negative",
-      message: error.response._data.message,
+      message: error.response.data.message,
       position: "top",
       timeout: 2000,
     });

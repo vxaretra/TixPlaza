@@ -11,7 +11,7 @@ export async function getClaims(event: H3Event): Promise<JwtAuthClaims | null> {
     }
 
     const token = authHeader.split(" ")[1];
-    const secret = config.jwtSecret;
+    const secret = config.public.jwtSecret;
 
     const claims = await verifyJwt(token, secret);
     return claims;

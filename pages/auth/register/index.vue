@@ -44,7 +44,7 @@
             </q-input>
             <q-input
               type="text"
-              v-model="registerForm.telp"
+              v-model="registerForm.phoneNumber"
               label="No. Telp"
               outlined
               dense
@@ -111,7 +111,7 @@
             <q-input
               v-model="registerForm.repeatPassword"
               :type="isPwd2 ? 'password' : 'text'"
-              label="Password"
+              label="Confirm Password"
               outlined
               dense
               color="black"
@@ -157,21 +157,24 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import CryptoJS from "crypto-js";
+const { $axios } = useNuxtApp();
 
 const router = useRouter();
 const q = useQuasar();
+
+const config = useRuntimeConfig();
 
 const currentImage = ref("/img/ticket.jpg");
 const isPwd = ref(true);
 const isPwd2 = ref(true);
 
-const registerForm = ref({
+const registerForm = reactive({
   name: "",
-  telp: "",
+  phoneNumber: "",
   email: "",
   password: "",
   repeatPassword: "",
@@ -182,21 +185,13 @@ console.log(router.options.routes);
 async function register() {
   try {
     q.loading.show();
-    const response = await $fetch("/api/auth/register", {
-      method: "POST",
-      body: {
-        email: registerForm.value.email,
-        password: registerForm.value.password,
-        name: registerForm.value.name,
-        phoneNumber: registerForm.value.telp,
-      },
-    });
+    const response = await $axios.post("/api/auth/register", registerForm);
     console.log("Registered:", response);
     if (response.data.token) {
       console.log("registered");
       const token = CryptoJS.AES.encrypt(
         response.data.token,
-        "adsdasd"
+        config.jwtSecret
       ).toString();
       console.log("asdasdas");
       localStorage.setItem("4c355", token);
@@ -207,7 +202,6 @@ async function register() {
         timeout: 2000,
       });
 
-      // hiding in 2s
       let timer = setTimeout(async () => {
         q.loading.hide();
         timer = void 0;
@@ -224,9 +218,10 @@ async function register() {
     }
   } catch (error) {
     console.error("Error registering:", error);
+    console.log(error.response);
     q.notify({
       type: "negative",
-      message: error.response._data.message,
+      message: error.response.data.message,
       position: "top",
       timeout: 2000,
     });
