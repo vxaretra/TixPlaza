@@ -19,7 +19,10 @@ export type ReqPostLogin = {
 
 export type ResPostLogin = {
     data: {
-        token: string
+        id: number,
+        email: string,
+        name: string,
+        role: string,
         isVerified: boolean
     }
 }

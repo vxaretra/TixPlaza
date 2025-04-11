@@ -3,6 +3,7 @@ import { AuthTokenPayload, ReqPostLogin, ResPostLogin } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt"
 import { signJwt } from "~/utils";
+import { setCookie } from 'h3'
 
 async function validatePostLogin(req: ReqPostLogin) {
     try {
@@ -46,9 +47,20 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
 
     const token = await signJwt(payload, config.public.jwtSecret);
 
+    setCookie(event, 'token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7 // 7 hari
+    })
+
     const response: ResPostLogin = {
         data: {
-            token: token,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
             isVerified: user.isVerified,
         },
     };

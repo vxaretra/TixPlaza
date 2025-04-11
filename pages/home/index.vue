@@ -73,38 +73,47 @@
     </div>
 
     <!-- Carousel -->
-    <div class="q-pa-md w-full lg:w-10/12 mx-auto mt-2">
-      <div class="text-center lg:text-left lg:text-2xl pb-5">
-        <p class="font-bold text-gray-900">
-          Penawaran menarik hanya untuk anda,
-        </p>
-        <p class="font-bold text-gray-900">
+    <div class="q-pa-md w-full max-w-7xl mx-auto mt-4">
+      <div
+        class="text-center lg:text-left text-xl lg:text-2xl font-bold text-gray-900 mb-4"
+      >
+        <p>Penawaran menarik hanya untuk anda,</p>
+        <p>
           jangan sampai kelewatan!
           <q-icon name="discount" color="warning" class="ml-2 text-xl" />
         </p>
       </div>
+
       <q-carousel
         v-model="slide"
         transition-prev="slide-right"
         transition-next="slide-left"
         swipeable
         animated
-        control-color="cyan"
         navigation
-        padding
         arrows
-        class="h-60 md:h-96 lg:h-[45rem]"
+        height="415px"
+        class="bg-grey-1 rounded-xl shadow-md"
+        control-color="primary"
       >
-        <q-carousel-slide :name="1">
-          <div class="grid grid-cols-2 gap-2">
-            <q-img class="rounded-lg w-full" :src="promoImg[1]" />
-            <q-img class="rounded-lg w-full" :src="promoImg[0]" />
+        <q-carousel-slide :name="1" class="q-pa-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[0]" />
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[1]" />
           </div>
         </q-carousel-slide>
-        <q-carousel-slide :name="2">
-          <div class="grid grid-cols-2 gap-2">
-            <q-img class="rounded-lg w-full" :src="promoImg[2]" />
-            <q-img class="rounded-lg w-full" :src="promoImg[3]" />
+
+        <q-carousel-slide :name="2" class="q-pa-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[2]" />
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[3]" />
+          </div>
+        </q-carousel-slide>
+
+        <q-carousel-slide :name="3" class="q-pa-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[4]" />
+            <q-img class="rounded-lg w-full" fit="contain" :src="promoImg[5]" />
           </div>
         </q-carousel-slide>
       </q-carousel>
@@ -127,11 +136,23 @@
       </div>
     </div>
 
-    <!-- Parallax -->
-    <div class="mx-auto w-11/12 md:w-4/6 rounded-xl">
-      <div class="q-pa-md q-gutter-md">
-        <q-parallax src="https://cdn.quasar.dev/img/parallax2.jpg">
-          <h1 class="text-white text-2xl sm:text-3xl lg:text-4xl">TixPlaza</h1>
+    <!-- Parallax Section -->
+    <div class="mx-auto w-11/12 md:w-4/6 rounded-xl overflow-hidden">
+      <div class="q-pa-none">
+        <q-parallax
+          src="https://cdn.quasar.dev/img/parallax2.jpg"
+          height="300"
+          class="rounded-xl"
+        >
+          <div
+            class="absolute inset-0 bg-black/40 flex items-center justify-center"
+          >
+            <h1
+              class="text-white text-3xl sm:text-4xl lg:text-5xl font-bold drop-shadow-md"
+            >
+              TixPlaza
+            </h1>
+          </div>
         </q-parallax>
       </div>
     </div>
@@ -193,7 +214,9 @@ const q = useQuasar();
 
 definePageMeta({
   layout: "landingpage",
+  roles: ["USER"],
 });
+
 const slide = ref(1);
 const promoImg = ref([
   "/img/promo1.jpg",
@@ -217,9 +240,11 @@ const scrollToProducts = () => {
     productsSection.value.scrollIntoView({ behavior: "smooth" });
   }
 };
+
 onMounted(() => {
   getData();
 });
+
 const getData = async () => {
   try {
     q.loading.show();

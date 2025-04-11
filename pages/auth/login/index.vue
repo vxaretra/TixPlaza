@@ -109,6 +109,7 @@ const { $axios } = useNuxtApp();
 const q = useQuasar();
 const router = useRouter();
 const config = useRuntimeConfig();
+const authUser = useAuthUser();
 
 // Reactive property to hold the current image URL
 const currentImage = ref("/img/ticket.jpg"); // Default image
@@ -124,12 +125,26 @@ const login = async () => {
   try {
     const { data } = await $axios.post("/api/auth/login", loginForm);
     console.log("Login:", data.data);
-    if (data.data.isVerified == true) {
+    if (data.data?.isVerified) {
       const token = CryptoJS.AES.encrypt(
         data.data.token,
         config.public.jwtSecret
       ).toString();
-      localStorage.setItem("4c355", token);
+      authUser.value = {
+        id: data.data.id,
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      };
+      console.log(authUser);
+      // Simpan token di cookie
+      const tokenCookie = useCookie("token"); // key: 'token'
+      tokenCookie.value = token;
+
+      // Simpan user di cookie
+      const userCookie = useCookie("auth_user");
+      userCookie.value = authUser.value;
+
       q.notify({
         type: "positive",
         message: "Login Sukses",

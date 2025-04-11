@@ -17,25 +17,98 @@
             <p shrink class="font-semibold text-xl pl-1">TixPlaza</p>
           </q-btn>
         </q-toolbar-title>
-
         <!-- Auth Buttons, align on the right side -->
-        <q-btn
-          flat
-          dense
-          icon="assignment_ind"
-          label="Masuk"
-          class="mr-2 hidden sm:block"
-          @click="$router.push('auth/login')"
-        />
-        <q-btn
-          push
-          dense
-          color="primary"
-          label="Daftar"
-          icon="person_add"
-          class="p-2 mr-5 hidden sm:block"
-          @click="$router.push('auth/register')"
-        />
+        <div v-if="authUser" class="p-5 space-x-5 flex">
+          <div class="flex items-center space-x-3">
+            <q-btn
+              flat
+              :color="isScrolled ? 'primary' : 'white'"
+              icon="shopping_cart"
+            />
+            <q-btn
+              flat
+              :color="isScrolled ? 'primary' : 'white'"
+              icon="notifications"
+            />
+            <q-btn
+              flat
+              :color="isScrolled ? 'primary' : 'white'"
+              icon="mail_outline"
+            />
+          </div>
+          <q-separator :color="isScrolled ? 'black' : 'white'" vertical />
+          <div>
+            <q-btn
+              flat
+              :color="isScrolled ? 'primary' : 'white'"
+              @click="menu = true"
+              ref="menuBtn"
+            >
+              <q-avatar size="42px">
+                <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+              </q-avatar>
+              <div class="mx-3">
+                {{ authUser.name }}
+              </div>
+              <q-menu transition-show="jump-down" transition-hide="jump-up">
+                <div class="q-px-md pt-3">
+                  <div class="p-2 border-2 shadow-md rounded-md">
+                    <q-avatar size="42px">
+                      <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                    </q-avatar>
+                    {{ authUser.name }}
+                  </div>
+                </div>
+                <div class="row no-wrap q-pa-md">
+                  <div class="column">
+                    <div class="text-h6 q-mb-md">Settings</div>
+                    <q-toggle v-model="mobileData" label="Use Mobile Data" />
+                    <q-toggle v-model="bluetooth" label="Bluetooth" />
+                  </div>
+
+                  <q-separator vertical inset class="q-mx-lg" />
+
+                  <div class="column items-center">
+                    <q-avatar size="72px">
+                      <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+                    </q-avatar>
+
+                    <div class="text-subtitle1 q-mt-md q-mb-xs">
+                      {{ authUser.name }}
+                    </div>
+
+                    <q-btn
+                      color="primary"
+                      label="Logout"
+                      push
+                      size="sm"
+                      @click="logout"
+                    />
+                  </div>
+                </div>
+              </q-menu>
+            </q-btn>
+          </div>
+        </div>
+        <div v-else class="flex">
+          <q-btn
+            flat
+            dense
+            icon="assignment_ind"
+            label="Masuk"
+            class="mr-2 hidden sm:block"
+            @click="$router.push('auth/login')"
+          />
+          <q-btn
+            push
+            dense
+            color="primary"
+            label="Daftar"
+            icon="person_add"
+            class="p-2 mr-5 hidden sm:block"
+            @click="$router.push('auth/register')"
+          />
+        </div>
       </q-toolbar>
 
       <!-- Search and Menu Options - Only shown after scrolling -->
@@ -139,6 +212,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
+const authUser = useAuthUser();
+const menu = ref(false);
+
 // Ref untuk menyimpan status scroll
 const isScrolled = ref(false);
 
@@ -150,6 +226,7 @@ const handleScroll = () => {
 // Tambahkan dan bersihkan event listener saat komponen dimount dan di-unmount
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
+  console.log(authUser.value);
 });
 
 onBeforeUnmount(() => {
@@ -159,7 +236,7 @@ onBeforeUnmount(() => {
 // Kelas dinamis untuk header
 const headerClass = computed(() => {
   return isScrolled.value
-    ? "bg-white text-black shadow-lg" // Saat di-scroll
+    ? "bg-white text-[#1976d2] shadow-lg" // Saat di-scroll
     : "bg-cyan-600 text-white"; // Saat sebelum di-scroll
 });
 </script>
