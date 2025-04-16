@@ -50,7 +50,11 @@
               <div class="mx-3">
                 {{ authUser.name }}
               </div>
-              <q-menu transition-show="jump-down" transition-hide="jump-up">
+              <q-menu
+                transition-show="jump-down"
+                transition-hide="jump-up"
+                class="h-auto"
+              >
                 <div class="q-px-md pt-3">
                   <div class="p-2 border-2 shadow-md rounded-md">
                     <q-avatar size="42px">
@@ -60,30 +64,111 @@
                   </div>
                 </div>
                 <div class="row no-wrap q-pa-md">
-                  <div class="column">
-                    <div class="text-h6 q-mb-md">Settings</div>
-                    <q-toggle v-model="mobileData" label="Use Mobile Data" />
-                    <q-toggle v-model="bluetooth" label="Bluetooth" />
+                  <div class="column" style="width: 220px">
+                    <q-btn flat push no-caps>
+                      <div
+                        class="flex justify-between items-center text-center w-full align-top text-blue-400"
+                      >
+                        <div class="italic">
+                          <q-icon name="games" /> TIXPLUS
+                        </div>
+                      </div>
+                      <div class="text-xs text-left">
+                        Coba Member Gratis 30 Hari, Yuk!
+                      </div>
+                      <div class="text-xs text-justify text-gray-600">
+                        Nikmati diskon up to 25% untuk beragam produk
+                      </div>
+                    </q-btn>
+
+                    <q-separator class="q-my-sm" />
+
+                    <q-btn flat push no-caps>
+                      <div
+                        class="flex justify-between items-center text-center w-full align-top text-blue-400"
+                      >
+                        <div class="italic">
+                          <q-icon name="savings" />
+                          <span class="whitespace-normal">TixSave</span>
+                        </div>
+                        <div>Rp. 200.000</div>
+                      </div>
+                    </q-btn>
+
+                    <q-separator class="q-my-sm" />
+
+                    <q-btn flat push no-caps>
+                      <div
+                        class="flex justify-between items-center text-center w-full align-top text-blue-400"
+                      >
+                        <div class="italic">
+                          <q-icon name="credit_card" />
+                          <span class="whitespace-normal">Debit / Credit</span>
+                        </div>
+                        <!-- <div>Rp. 100.000</div>] -->
+                      </div>
+                      <div class="text-xs text-justify text-gray-600">
+                        Tambahkan kartu debit/credit anda
+                      </div>
+                    </q-btn>
+
+                    <q-separator class="q-my-sm" />
                   </div>
 
-                  <q-separator vertical inset class="q-mx-lg" />
+                  <q-separator vertical inset class="q-mx-sm" />
 
-                  <div class="column items-center">
-                    <q-avatar size="72px">
-                      <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-                    </q-avatar>
-
-                    <div class="text-subtitle1 q-mt-md q-mb-xs">
-                      {{ authUser.name }}
-                    </div>
-
+                  <div class="column items-center font-mono">
                     <q-btn
-                      color="primary"
-                      label="Logout"
-                      push
-                      size="sm"
-                      @click="logout"
+                      flat
+                      align="left"
+                      color="grey-13"
+                      label="Pembelian"
+                      no-caps
+                      dense
+                      style="width: 120px"
                     />
+                    <q-btn
+                      flat
+                      align="left"
+                      color="grey-13"
+                      label="Wishlist"
+                      no-caps
+                      dense
+                      style="width: 120px"
+                    />
+                    <q-btn
+                      flat
+                      align="left"
+                      color="grey-13"
+                      label="Toko Favorit"
+                      no-caps
+                      dense
+                      style="width: 120px"
+                    />
+                    <q-btn
+                      flat
+                      align="left"
+                      color="grey-13"
+                      label="Pengaturan"
+                      no-caps
+                      dense
+                      style="width: 120px"
+                    />
+                    <q-space />
+                    <q-btn
+                      flat
+                      align="left"
+                      color="grey-13"
+                      no-caps
+                      dense
+                      style="width: 120px; margin-bottom: 5px"
+                      @click="LogOut()"
+                    >
+                      <div class="row items-center no-wrap">
+                        <q-icon left name="logout" class="text-sm" />
+                        <div class="text-center">Logout</div>
+                      </div>
+                    </q-btn>
                   </div>
                 </div>
               </q-menu>
@@ -212,6 +297,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
+const { $axios } = useNuxtApp();
+const q = useQuasar();
 const authUser = useAuthUser();
 const menu = ref(false);
 
@@ -239,6 +326,43 @@ const headerClass = computed(() => {
     ? "bg-white text-[#1976d2] shadow-lg" // Saat di-scroll
     : "bg-cyan-600 text-white"; // Saat sebelum di-scroll
 });
+
+const LogOut = async () => {
+  q.loading.show();
+  try {
+    const { data } = await $axios.post("/api/auth/logout");
+    // Remove token and user cookies
+    const tokenCookie = useCookie("token");
+    const userCookie = useCookie("auth_user");
+
+    tokenCookie.value = null;
+    userCookie.value = null;
+
+    // Optional: Clear the authUser ref if you're using it reactively
+    authUser.value = null;
+
+    console.log(data);
+
+    q.notify({
+      type: "positive",
+      message: data.message,
+      position: "top",
+      timeout: 2000,
+    });
+    q.loading.hide();
+    // Optional: redirect to login or home
+    await navigateTo("/auth/login"); // or wherever you want
+  } catch (e) {
+    console.log("err logout FE: ", e);
+    q.notify({
+      type: "negative",
+      message: "Terjadi kesalahan saat logout, mohon coba lagi",
+      position: "top",
+      timeout: 2000,
+    });
+    q.loading.hide();
+  }
+};
 </script>
 
 <style scoped>

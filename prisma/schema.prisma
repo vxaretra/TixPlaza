@@ -47,6 +47,7 @@ model VerificationCode {
 model Ticket {
   id          Int      @id @default(autoincrement())
   name        String
+  rating      Float?
   copywriting String   @db.Text
   start       DateTime
   end         DateTime

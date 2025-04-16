@@ -72,8 +72,29 @@
       </div>
     </div>
 
+    <!-- Parallax Section -->
+    <div class="mx-auto w-11/12 md:w-4/6 rounded-xl overflow-hidden py-10">
+      <div class="q-pa-none">
+        <q-parallax
+          src="https://cdn.quasar.dev/img/parallax2.jpg"
+          height="300"
+          class="rounded-xl"
+        >
+          <div
+            class="absolute inset-0 bg-black/40 flex items-center justify-center"
+          >
+            <h1
+              class="text-white text-3xl sm:text-4xl lg:text-5xl font-bold drop-shadow-md"
+            >
+              TixPlaza
+            </h1>
+          </div>
+        </q-parallax>
+      </div>
+    </div>
+
     <!-- Carousel -->
-    <div class="q-pa-md w-full max-w-7xl mx-auto mt-4">
+    <div class="q-pa-md w-full max-w-7xl mx-auto">
       <div
         class="text-center lg:text-left text-xl lg:text-2xl font-bold text-gray-900 mb-4"
       >
@@ -120,7 +141,7 @@
     </div>
 
     <!-- Products Section -->
-    <div ref="productsSection" class="container py-12">
+    <div ref="productsSection" class="container py-12 px-5">
       <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-center">
         Popular Products
       </h2>
@@ -133,27 +154,6 @@
           :price="product.price"
           :image="product.image"
         />
-      </div>
-    </div>
-
-    <!-- Parallax Section -->
-    <div class="mx-auto w-11/12 md:w-4/6 rounded-xl overflow-hidden">
-      <div class="q-pa-none">
-        <q-parallax
-          src="https://cdn.quasar.dev/img/parallax2.jpg"
-          height="300"
-          class="rounded-xl"
-        >
-          <div
-            class="absolute inset-0 bg-black/40 flex items-center justify-center"
-          >
-            <h1
-              class="text-white text-3xl sm:text-4xl lg:text-5xl font-bold drop-shadow-md"
-            >
-              TixPlaza
-            </h1>
-          </div>
-        </q-parallax>
       </div>
     </div>
 
@@ -249,7 +249,7 @@ const getData = async () => {
   try {
     q.loading.show();
 
-    const { data } = await $axios.get("/api/tickets");
+    const { data } = await $axios.get("/api/tickets?limit=4");
     console.log(data);
     const newData =
       data != null
