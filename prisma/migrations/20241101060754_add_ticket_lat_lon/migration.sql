@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `ticket` ADD COLUMN `lat` DOUBLE NULL,
+    ADD COLUMN `lon` DOUBLE NULL;

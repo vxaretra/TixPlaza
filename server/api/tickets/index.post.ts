@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
             end: new Date(body.end),
             price: body.price,
             quota: body.quota,
+            lat: body.lat,
+            lon: body.lon,
             medias: {
                 create: body.medias.map((media) => { return { url: media } }),
             },
@@ -46,13 +48,16 @@ export default defineEventHandler(async (event) => {
 
     const response: ResPostTickets = {
         data: {
+            id: ticket.id,
             name: ticket.name,
             copywriting: ticket.copywriting,
             start: ticket.start.toISOString(),
             end: ticket.end.toISOString(),
             price: ticket.price.toNumber(),
             quota: ticket.quota,
-            medias: ticket.medias.map((media) => media.url),
+            lat: ticket.lat,
+            lon: ticket.lon,
+            medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
         },
     };
 

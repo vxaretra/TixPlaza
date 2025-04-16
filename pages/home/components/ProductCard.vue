@@ -124,8 +124,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
-// import L from "leaflet";
+import { useQuasar } from "quasar";
+import { ref, reactive, defineProps, defineEmits } from "vue";
+const { $axios } = useNuxtApp();
+
+const q = useQuasar();
 
 const props = defineProps({
   name: {
@@ -148,6 +151,7 @@ const props = defineProps({
 
 const showDialog = ref(false);
 const singerImg = ref("/img/singer.avif");
+const quantity = ref(0);
 
 onMounted(() => {
   formatRupiahInput();
@@ -181,4 +185,25 @@ const addToCart = () => {
 
 const showMapDialog = ref(false);
 const zoom = ref(6);
+
+const handlePurchase = async () => {
+  q.loading.show();
+  try {
+    const response = await $axios.post("/api/orders", {
+      id: 1,
+      quantity: quantity.value,
+    });
+    console.log("Buy:", response);
+    q.loading.hide();
+  } catch (error) {
+    console.log(error.response);
+    q.notify({
+      type: "negative",
+      message: error.response.data.message,
+      position: "top",
+      timeout: 2000,
+    });
+    q.loading.hide();
+  }
+};
 </script>

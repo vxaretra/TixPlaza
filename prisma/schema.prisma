@@ -25,6 +25,8 @@ model User {
   updatedAt   DateTime @default(now()) @updatedAt
 
   verificationCode VerificationCode?
+  transactions     Transaction[]
+  carts            Cart[]
 }
 
 enum Role {
@@ -45,15 +47,20 @@ model VerificationCode {
 model Ticket {
   id          Int      @id @default(autoincrement())
   name        String
+  rating      Float?
   copywriting String   @db.Text
   start       DateTime
   end         DateTime
   price       Decimal  @db.Decimal(10, 2)
+  lat         Float?
+  lon         Float?
   quota       Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
-  medias TicketMedia[]
+  medias       TicketMedia[]
+  orderTickets OrderTickets[]
+  carts        Cart[]
 }
 
 model TicketMedia {
@@ -64,4 +71,50 @@ model TicketMedia {
   updatedAt DateTime @default(now()) @updatedAt
 
   ticket Ticket @relation(fields: [ticketId], references: [id])
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  EXPIRED
+}
+
+model Transaction {
+  id          Int               @id @default(autoincrement())
+  userId      Int
+  total       Decimal           @db.Decimal(10, 2)
+  paymentLink String?
+  status      TransactionStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now()) @updatedAt
+
+  user       User           @relation(fields: [userId], references: [id])
+  orderItems OrderTickets[]
+}
+
+model OrderTickets {
+  transactionId Int
+  ticketId      Int
+  quantity      Int
+  subTotal      Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  ticket      Ticket      @relation(fields: [ticketId], references: [id])
+
+  @@id([transactionId, ticketId])
+}
+
+model Cart {
+  userId    Int
+  ticketId  Int
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+
+  @@id([userId, ticketId])
 }

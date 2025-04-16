@@ -1,3 +1,8 @@
+export type TicketMedia = {
+    id: number;
+    url: string;
+}
+
 export type ReqPostTickets = {
     name: string
     copywriting: string
@@ -5,18 +10,23 @@ export type ReqPostTickets = {
     end: Date
     price: number
     quota: number
+    lat: number | null
+    lon: number | null
     medias: string[]
 }
 
 export type ResPostTickets = {
     data: {
+        id: number
         name: string
         copywriting: string
         start: string
         end: string
         price: number
         quota: number
-        medias: string[]
+        lat: number | null
+        lon: number | null
+        medias: TicketMedia[]
     }
 }
 
@@ -35,6 +45,9 @@ export type ResGetTickets = {
         end: string
         price: number
         quota: number
+        lat: number | null
+        lon: number | null
+        medias: TicketMedia[]
         createdAt: string
         updatedAt: string
     }[]
@@ -49,30 +62,26 @@ export type ResGetTicketDetail = {
         end: string
         price: number
         quota: number
+        lat: number | null
+        lon: number | null
+        medias: TicketMedia[]
         createdAt: string
         updatedAt: string
     }
 }
 
-export type ReqPutTickets = {
-    name: string
-    copywriting: string
-    start: string | number
-    end: string | number
-    price: string | number
-    quota: string | number
-    medias: string[]
-}
-
 export type ResPutTickets = {
     data: {
+        id: number
         name: string
         copywriting: string
         start: string
         end: string
         price: number
         quota: number
-        medias: string[]
+        lat: number | null
+        lon: number | null
+        medias: TicketMedia[]
     }
 }
 

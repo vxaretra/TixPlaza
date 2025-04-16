@@ -3,21 +3,22 @@ import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 
 export default defineNuxtPlugin(nuxtApp => {
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBScRxSziM-A4V0qvVPv_C4mmtaJRGl4Ds",
-    authDomain: "tixplaza-c26ae.firebaseapp.com",
-    projectId: "tixplaza-c26ae",
-    storageBucket: "tixplaza-c26ae.appspot.com",
-    messagingSenderId: "773097445172",
-    appId: "1:773097445172:web:1f35b97fdf73167412f761"
-  };
+    const config = useRuntimeConfig();
 
-// Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: config.public.firebaseKey,
+        authDomain: config.public.firebaseDomain,
+        projectId: config.public.firebaseProjectid,
+        storageBucket: config.public.firebaseStorageBucket,
+        messagingSenderId: config.public.firebaseMessagingSenderid,
+        appId: config.public.firebaseAppid,
+    };
 
-  
-  const storage = getStorage(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
 
-  nuxtApp.provide('storage', storage);  // Menggunakan $storage di dalam komponen
+    const storage = getStorage(app);
+
+    nuxtApp.provide('storage', storage);  // Menggunakan $storage di dalam komponen
 });

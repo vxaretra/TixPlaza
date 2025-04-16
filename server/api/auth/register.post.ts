@@ -3,7 +3,7 @@ import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth"
 import { prisma } from "~/prisma/db"
 import bcrypt from "bcrypt"
 import { randomFromInterval, signJwt } from "~/utils";
-import { config } from "~/utils/config";
+import { emailVerificationCode } from "~/server/utils/mailer";
 
 async function validatePostRegister(req: ReqPostRegister) {
     try {
@@ -29,32 +29,13 @@ async function hashPassword(password: string): Promise<string> {
     return hashedPassword;
 }
 
-async function emailVerificationCode(to: string, code: number) {
-    const body = {
-        "from": "TixPlaza <tixplaza@resend.dev>",
-        "to": to,
-        "subject": "Account Verification",
-        "text": `Your verification code: ${code}`,
-    };
-
-    try {
-        await $fetch(`${config.RESEND_URL}/emails`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${config.RESEND_TOKEN}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-    } catch (error) {
-        throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to send verification email" });
-    }
-}
-
 export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
+    const config = useRuntimeConfig();
+
     const body = await readBody<ReqPostRegister>(event);
 
     await validatePostRegister(body);
+    console.log(body);
 
     const existingUser = await prisma.user.findFirst({ where: { email: body.email } });
     if (existingUser !== null) {
@@ -77,9 +58,12 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
         }
     });
 
-
-    const to = (process.env.NODE_ENV !== 'production') ? "delivered@resend.dev" : user.email;
-    await emailVerificationCode(to, verificationCode);
+    try {
+        await emailVerificationCode(user.email, verificationCode);
+    } catch (error) {
+        console.error(error);
+        throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to send verification email" });
+    }
 
     const payload: AuthTokenPayload = {
         id: user.id,
@@ -89,7 +73,7 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
         role: user.role,
     };
 
-    const token = await signJwt(payload, config.JWT_SECRET);
+    const token = await signJwt(payload, config.public.jwtSecret);
 
     const response: ResPostRegister = {
         data: { token: token },

@@ -1,27 +1,32 @@
 import vine from "@vinejs/vine";
-import { ResGetTickets } from "~/dto/tickets";
+import { ResGetCarts } from "~/dto/carts";
 import { prisma } from "~/prisma/db";
 
 const querySchema = vine.object({
-    q: vine.string().optional(),
     page: vine.number().min(1).optional(),
     limit: vine.number().min(1).max(256).optional(),
 });
 
-export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
+export default defineEventHandler<Promise<ResGetCarts>>(async (event) => {
+    const claims = await getClaims(event);
+    if (claims === null) {
+        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "User not logged in" });
+    }
+
     const [error, query] = await getValidatedQuery(event, (data) => vine.tryValidate({ schema: querySchema, data: data }));
     if (error !== null) {
         throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: error.messages });
     }
 
-    if (query.q === undefined) query.q = "";
     if (query.page === undefined) query.page = 1;
     if (query.limit === undefined) query.limit = 10;
 
     const tickets = await prisma.ticket.findMany({
         where: {
-            name: {
-                contains: query.q,
+            carts: {
+                every: {
+                    userId: claims.id,
+                },
             }
         },
         orderBy: {
@@ -29,13 +34,13 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
         },
         skip: (query.page - 1) * query.limit, take: query.limit,
         include: {
-            medias: true
+            medias: true,
         },
     });
 
     const total = await prisma.ticket.count();
 
-    const response: ResGetTickets = {
+    const response: ResGetCarts = {
         pagination: {
             total: total,
             totalPages: Math.ceil(total / query.limit),

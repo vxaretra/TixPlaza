@@ -100,44 +100,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, reactive } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import CryptoJS from "crypto-js";
+const { $axios } = useNuxtApp();
 
 const q = useQuasar();
 const router = useRouter();
-const secretKey = import.meta.env.JWT_SECRET;
+const config = useRuntimeConfig();
+const authUser = useAuthUser();
 
 // Reactive property to hold the current image URL
 const currentImage = ref("/img/ticket.jpg"); // Default image
 const isPwd = ref(true);
 
-const loginForm = ref({
+const loginForm = reactive({
   email: "",
   password: "",
 });
 
-async function login() {
-  console.log(secretKey);
+const login = async () => {
   q.loading.show();
   try {
-    const response = await $fetch("/api/auth/login", {
-      method: "POST",
-      body: {
-        email: loginForm.value.email,
-        password: loginForm.value.password,
-      },
-    });
-    console.log("Login:", response);
-    if (response.data.isVerified == true) {
-      console.log("SSSS");
+    const { data } = await $axios.post("/api/auth/login", loginForm);
+    console.log("Login:", data.data);
+    if (data.data?.isVerified) {
       const token = CryptoJS.AES.encrypt(
-        response.data.token,
-        "adsdasd"
+        data.data.token,
+        config.public.jwtSecret
       ).toString();
-      console.log("asdasdas");
-      localStorage.setItem("4c355", token);
+      authUser.value = {
+        id: data.data.id,
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      };
+      console.log(authUser);
+      // Simpan token di cookie
+      const tokenCookie = useCookie("token"); // key: 'token'
+      tokenCookie.value = token;
+
+      // Simpan user di cookie
+      const userCookie = useCookie("auth_user");
+      userCookie.value = authUser.value;
+
       q.notify({
         type: "positive",
         message: "Login Sukses",
@@ -159,13 +166,13 @@ async function login() {
     console.log(error.response);
     q.notify({
       type: "negative",
-      message: error.response._data.message,
+      message: error.response?.data?.message || "Unknown Error",
       position: "top",
       timeout: 2000,
     });
     q.loading.hide();
   }
-}
+};
 </script>
 
 <style scoped></style>
