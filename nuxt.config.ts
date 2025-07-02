@@ -8,6 +8,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     smtpHost: "",
+    smtpPort: "",
     smtpUser: "",
     smtpPass: "",
     xenditKey: "",

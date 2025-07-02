@@ -16,8 +16,10 @@
     "@prisma/client": "5.17.0",
     "@quasar/extras": "^1.16.12",
     "@vinejs/vine": "^2.1.0",
+    "axios": "^1.10.0",
     "bcrypt": "^5.1.1",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "dayjs-nuxt": "^2.1.11",
     "firebase": "^10.14.1",
     "jsonwebtoken": "^9.0.2",
@@ -34,5 +36,15 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/nodemailer": "^6.4.16",
     "prisma": "^5.17.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "bcrypt",
+      "esbuild",
+      "prisma",
+      "protobufjs"
+    ]
   }
 }
