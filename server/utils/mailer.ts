@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 const config = useRuntimeConfig();
 const transport = nodemailer.createTransport({
     host: config.smtpHost,
-    port: 2525,
+    port: parseInt(config.smtpPort),
     auth: {
         user: config.smtpUser,
         pass: config.smtpPass,
