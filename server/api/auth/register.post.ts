@@ -1,7 +1,7 @@
-import vine, { errors } from "@vinejs/vine"
-import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth"
-import { prisma } from "~/prisma/db"
-import bcrypt from "bcrypt"
+import vine, { errors } from "@vinejs/vine";
+import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth";
+import { prisma } from "~/prisma/db";
+import bcrypt from "bcrypt";
 import { randomFromInterval, signJwt } from "~/utils";
 import { emailVerificationCode } from "~/server/utils/mailer";
 
@@ -17,7 +17,12 @@ async function validatePostRegister(req: ReqPostRegister) {
         await vine.validate({ schema: schema, data: req });
     } catch (err) {
         if (err instanceof errors.E_VALIDATION_ERROR) {
-            throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: err.messages });
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Bad Request",
+                message: "Invalid input",
+                data: err.messages,
+            });
         }
     }
 }
@@ -37,9 +42,15 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
     await validatePostRegister(body);
     console.log(body);
 
-    const existingUser = await prisma.user.findFirst({ where: { email: body.email } });
+    const existingUser = await prisma.user.findFirst({
+        where: { email: body.email },
+    });
     if (existingUser !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Email already exists" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Email already exists",
+        });
     }
 
     const verificationCode: number = randomFromInterval(100000, 999999);
@@ -53,16 +64,20 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
             verificationCode: {
                 create: {
                     code: verificationCode,
-                }
-            }
-        }
+                },
+            },
+        },
     });
 
     try {
         await emailVerificationCode(user.email, verificationCode);
     } catch (error) {
         console.error(error);
-        throw createError({ statusCode: 500, statusMessage: "Internal Server Error", message: "Failed to send verification email" });
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Internal Server Error",
+            message: "Failed to send verification email",
+        });
     }
 
     const payload: AuthTokenPayload = {

@@ -9,9 +9,16 @@ const querySchema = vine.object({
 });
 
 export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
-    const [error, query] = await getValidatedQuery(event, (data) => vine.tryValidate({ schema: querySchema, data: data }));
+    const [error, query] = await getValidatedQuery(event, (data) =>
+        vine.tryValidate({ schema: querySchema, data: data }),
+    );
     if (error !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: error.messages });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid input",
+            data: error.messages,
+        });
     }
 
     if (query.q === undefined) query.q = "";
@@ -22,14 +29,15 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
         where: {
             name: {
                 contains: query.q,
-            }
+            },
         },
         orderBy: {
             name: "asc",
         },
-        skip: (query.page - 1) * query.limit, take: query.limit,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
         include: {
-            medias: true
+            medias: true,
         },
     });
 
@@ -55,7 +63,9 @@ export default defineEventHandler<Promise<ResGetTickets>>(async (event) => {
                 lon: ticket.lon,
                 createdAt: ticket.createdAt.toISOString(),
                 updatedAt: ticket.updatedAt.toISOString(),
-                medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
+                medias: ticket.medias.map((media) => {
+                    return { id: media.id, url: media.url };
+                }),
             };
         }),
     };

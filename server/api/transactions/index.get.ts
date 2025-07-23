@@ -10,12 +10,23 @@ const querySchema = vine.object({
 export default defineEventHandler(async (event) => {
     const claims = await getClaims(event);
     if (claims === null) {
-        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "User not logged in" });
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Unauthorized",
+            message: "User not logged in",
+        });
     }
 
-    const [error, query] = await getValidatedQuery(event, (data) => vine.tryValidate({ schema: querySchema, data: data }));
+    const [error, query] = await getValidatedQuery(event, (data) =>
+        vine.tryValidate({ schema: querySchema, data: data }),
+    );
     if (error !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: error.messages });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid input",
+            data: error.messages,
+        });
     }
 
     if (query.page === undefined) query.page = 1;
@@ -28,7 +39,8 @@ export default defineEventHandler(async (event) => {
         where: {
             userId: claims.id,
         },
-        skip: (query.page - 1) * query.limit, take: query.limit,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
     });
 
     const total = await prisma.transaction.count({
@@ -46,7 +58,7 @@ export default defineEventHandler(async (event) => {
         },
         data: transactions.map((transcation) => {
             const expiredAt = new Date(transcation.createdAt);
-            expiredAt.setDate(expiredAt.getDate() + 1)
+            expiredAt.setDate(expiredAt.getDate() + 1);
 
             return {
                 id: transcation.id,
@@ -55,7 +67,7 @@ export default defineEventHandler(async (event) => {
                 paymentLink: transcation.paymentLink,
                 createdAt: transcation.createdAt.toISOString(),
                 expiredAt: expiredAt.toISOString(),
-            }
+            };
         }),
     };
 

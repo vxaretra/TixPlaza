@@ -7,9 +7,16 @@ const paramsSchema = vine.object({
 });
 
 export default defineEventHandler<Promise<ResDeleteTickets>>(async (event) => {
-    const [error, params] = await getValidatedRouterParams(event, (data) => vine.tryValidate({ schema: paramsSchema, data: data }));
+    const [error, params] = await getValidatedRouterParams(event, (data) =>
+        vine.tryValidate({ schema: paramsSchema, data: data }),
+    );
     if (error !== null) {
-        throw createError({ statusCode: 404, statusMessage: "Not Found", message: "ID not found", data: error.messages });
+        throw createError({
+            statusCode: 404,
+            statusMessage: "Not Found",
+            message: "ID not found",
+            data: error.messages,
+        });
     }
 
     await prisma.ticketMedia.deleteMany({ where: { ticketId: params.id } });

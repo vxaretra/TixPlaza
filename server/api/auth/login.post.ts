@@ -1,7 +1,7 @@
 import vine, { errors } from "@vinejs/vine";
 import { ReqPostLogin, ResPostLogin } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 async function validatePostLogin(req: ReqPostLogin) {
     try {
@@ -13,7 +13,12 @@ async function validatePostLogin(req: ReqPostLogin) {
         await vine.validate({ schema: schema, data: req });
     } catch (err) {
         if (err instanceof errors.E_VALIDATION_ERROR) {
-            throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: err.messages });
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Bad Request",
+                message: "Invalid input",
+                data: err.messages,
+            });
         }
     }
 }
@@ -25,12 +30,20 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
 
     const user = await prisma.user.findFirst({ where: { email: body.email } });
     if (user === null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Wrong email address" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Wrong email address",
+        });
     }
 
     const isMatch = await bcrypt.compare(body.password, user.password);
     if (!isMatch) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Wrong password" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Wrong password",
+        });
     }
 
     await setUserSession(event, {

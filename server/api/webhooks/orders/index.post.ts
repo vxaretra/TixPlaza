@@ -5,10 +5,10 @@ import { prisma } from "~/prisma/db";
 
 const bodySchema = vine.object({
     id: vine.string(),
-    "external_id": vine.number(),
-    "user_id": vine.string(),
+    external_id: vine.number(),
+    user_id: vine.string(),
     status: vine.enum(InvoiceStatus),
-    "merchant_name": vine.string(),
+    merchant_name: vine.string(),
     amount: vine.number(),
     created: vine.string(),
     updated: vine.string(),
@@ -16,12 +16,14 @@ const bodySchema = vine.object({
 });
 
 export default defineEventHandler(async (event) => {
-    const token = getHeader(event, "x-callback-token")
+    const token = getHeader(event, "x-callback-token");
     if (token === undefined) {
         throw createError({ status: 400, message: "Invalid token" });
     }
 
-    const [err, body] = await readValidatedBody(event, (data) => vine.tryValidate({ schema: bodySchema, data: data }));
+    const [err, body] = await readValidatedBody(event, (data) =>
+        vine.tryValidate({ schema: bodySchema, data: data }),
+    );
     if (err !== null) {
         throw createError({ statusCode: 400, message: "Invalid payload" });
     }
@@ -38,7 +40,7 @@ export default defineEventHandler(async (event) => {
                 },
                 data: {
                     status: TransactionStatus.PAID,
-                }
+                },
             });
             break;
         case InvoiceStatus.Expired:
@@ -49,7 +51,7 @@ export default defineEventHandler(async (event) => {
                     where: {
                         transactionId: body["external_id"],
                     },
-                })
+                });
 
                 for (const orderTicket of orderTickets) {
                     await prisma.ticket.update({
@@ -70,7 +72,7 @@ export default defineEventHandler(async (event) => {
                     },
                     data: {
                         status: TransactionStatus.EXPIRED,
-                    }
+                    },
                 });
             });
 

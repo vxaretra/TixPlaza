@@ -8,7 +8,9 @@ async function validatePostTickets(req: ReqPostTickets) {
             name: vine.string().trim().minLength(1).maxLength(255),
             copywriting: vine.string().minLength(1).maxLength(4096),
             start: vine.date({ formats: "YYYY-MM-DD HH:mm" }),
-            end: vine.date({ formats: "YYYY-MM-DD HH:mm" }).afterOrSameAs("start"),
+            end: vine
+                .date({ formats: "YYYY-MM-DD HH:mm" })
+                .afterOrSameAs("start"),
             price: vine.number().min(0),
             quota: vine.number().min(0),
             medias: vine.array(vine.string().url()),
@@ -17,7 +19,12 @@ async function validatePostTickets(req: ReqPostTickets) {
         await vine.validate({ schema: schema, data: req });
     } catch (err) {
         if (err instanceof errors.E_VALIDATION_ERROR) {
-            throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: err.messages });
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Bad Request",
+                message: "Invalid input",
+                data: err.messages,
+            });
         }
     }
 }
@@ -38,7 +45,9 @@ export default defineEventHandler(async (event) => {
             lat: body.lat,
             lon: body.lon,
             medias: {
-                create: body.medias.map((media) => { return { url: media } }),
+                create: body.medias.map((media) => {
+                    return { url: media };
+                }),
             },
         },
         include: {
@@ -57,7 +66,9 @@ export default defineEventHandler(async (event) => {
             quota: ticket.quota,
             lat: ticket.lat,
             lon: ticket.lon,
-            medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
+            medias: ticket.medias.map((media) => {
+                return { id: media.id, url: media.url };
+            }),
         },
     };
 

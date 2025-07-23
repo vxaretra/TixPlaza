@@ -19,14 +19,29 @@ const putTicketSchema = vine.object({
 });
 
 export default defineEventHandler<Promise<ResPutTickets>>(async (event) => {
-    const [paramsError, params] = await getValidatedRouterParams(event, (data) => vine.tryValidate({ schema: paramsSchema, data: data }));
+    const [paramsError, params] = await getValidatedRouterParams(
+        event,
+        (data) => vine.tryValidate({ schema: paramsSchema, data: data }),
+    );
     if (paramsError != null) {
-        throw createError({ statusCode: 404, statusMessage: "Not Found", message: "ID not found", data: paramsError.messages });
+        throw createError({
+            statusCode: 404,
+            statusMessage: "Not Found",
+            message: "ID not found",
+            data: paramsError.messages,
+        });
     }
 
-    const [bodyError, body] = await readValidatedBody(event, (data) => vine.tryValidate({ schema: putTicketSchema, data: data }));
+    const [bodyError, body] = await readValidatedBody(event, (data) =>
+        vine.tryValidate({ schema: putTicketSchema, data: data }),
+    );
     if (bodyError != null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: bodyError.messages });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid input",
+            data: bodyError.messages,
+        });
     }
 
     const updatedTicket = await prisma.ticket.update({
@@ -44,7 +59,9 @@ export default defineEventHandler<Promise<ResPutTickets>>(async (event) => {
             lon: body.lon,
             medias: {
                 deleteMany: {},
-                create: body.medias.map((media) => { return { url: media } }),
+                create: body.medias.map((media) => {
+                    return { url: media };
+                }),
             },
         },
         include: {
@@ -63,8 +80,10 @@ export default defineEventHandler<Promise<ResPutTickets>>(async (event) => {
             quota: updatedTicket.quota,
             lat: updatedTicket.lat,
             lon: updatedTicket.lon,
-            medias: updatedTicket.medias.map((media) => { return { id: media.id, url: media.url } }),
-        }
+            medias: updatedTicket.medias.map((media) => {
+                return { id: media.id, url: media.url };
+            }),
+        },
     };
 
     return response;

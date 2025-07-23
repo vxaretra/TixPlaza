@@ -9,20 +9,39 @@ const bodySchema = vine.object({
 export default defineEventHandler(async (event) => {
     const claims = await getClaims(event);
     if (claims === null) {
-        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "No Authorization header found" });
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Unauthorized",
+            message: "No Authorization header found",
+        });
     }
 
-    const [err, body] = await readValidatedBody(event, (data) => vine.tryValidate({ schema: bodySchema, data: data }));
+    const [err, body] = await readValidatedBody(event, (data) =>
+        vine.tryValidate({ schema: bodySchema, data: data }),
+    );
     if (err !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid code" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid code",
+        });
     }
 
-    const verificationCode = await prisma.verificationCode.findFirst({ where: { code: body.code, userId: claims.id } });
+    const verificationCode = await prisma.verificationCode.findFirst({
+        where: { code: body.code, userId: claims.id },
+    });
     if (verificationCode === null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid code" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid code",
+        });
     }
 
-    await prisma.user.update({ where: { id: claims.id }, data: { isVerified: true } });
+    await prisma.user.update({
+        where: { id: claims.id },
+        data: { isVerified: true },
+    });
 
     return "";
 });

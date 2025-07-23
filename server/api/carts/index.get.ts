@@ -10,12 +10,23 @@ const querySchema = vine.object({
 export default defineEventHandler<Promise<ResGetCarts>>(async (event) => {
     const claims = await getClaims(event);
     if (claims === null) {
-        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "User not logged in" });
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Unauthorized",
+            message: "User not logged in",
+        });
     }
 
-    const [error, query] = await getValidatedQuery(event, (data) => vine.tryValidate({ schema: querySchema, data: data }));
+    const [error, query] = await getValidatedQuery(event, (data) =>
+        vine.tryValidate({ schema: querySchema, data: data }),
+    );
     if (error !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input", data: error.messages });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid input",
+            data: error.messages,
+        });
     }
 
     if (query.page === undefined) query.page = 1;
@@ -27,12 +38,13 @@ export default defineEventHandler<Promise<ResGetCarts>>(async (event) => {
                 every: {
                     userId: claims.id,
                 },
-            }
+            },
         },
         orderBy: {
             name: "asc",
         },
-        skip: (query.page - 1) * query.limit, take: query.limit,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
         include: {
             medias: true,
         },
@@ -60,7 +72,9 @@ export default defineEventHandler<Promise<ResGetCarts>>(async (event) => {
                 lon: ticket.lon,
                 createdAt: ticket.createdAt.toISOString(),
                 updatedAt: ticket.updatedAt.toISOString(),
-                medias: ticket.medias.map((media) => { return { id: media.id, url: media.url } }),
+                medias: ticket.medias.map((media) => {
+                    return { id: media.id, url: media.url };
+                }),
             };
         }),
     };

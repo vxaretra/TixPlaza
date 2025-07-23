@@ -9,17 +9,33 @@ const bodySchema = vine.object({
 export default defineEventHandler(async (event) => {
     const claims = await getClaims(event);
     if (claims === null) {
-        throw createError({ statusCode: 401, statusMessage: "Unauthorized", message: "User not logged in" });
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Unauthorized",
+            message: "User not logged in",
+        });
     }
 
-    const [err, body] = await readValidatedBody(event, (data) => vine.tryValidate({ schema: bodySchema, data: data }));
+    const [err, body] = await readValidatedBody(event, (data) =>
+        vine.tryValidate({ schema: bodySchema, data: data }),
+    );
     if (err !== null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Invalid input" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Invalid input",
+        });
     }
 
-    const ticket = await prisma.ticket.findFirst({ where: { id: body.itemId } });
+    const ticket = await prisma.ticket.findFirst({
+        where: { id: body.itemId },
+    });
     if (ticket === null) {
-        throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Ticket not found" });
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Ticket not found",
+        });
     }
 
     await prisma.cart.upsert({
@@ -36,7 +52,7 @@ export default defineEventHandler(async (event) => {
             userId: claims.id,
             ticketId: ticket.id,
             quantity: body.quantity,
-        }
+        },
     });
 
     return {};
