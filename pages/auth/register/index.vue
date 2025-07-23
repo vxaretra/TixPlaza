@@ -158,7 +158,6 @@
 
 <script setup>
 import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 
 const { loggedIn } = useUserSession();
@@ -166,7 +165,6 @@ if (loggedIn.value === true) {
   await navigateTo("/home");
 }
 
-const router = useRouter();
 const q = useQuasar();
 
 const currentImage = ref("/img/ticket.jpg");
