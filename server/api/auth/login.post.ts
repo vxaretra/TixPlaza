@@ -1,8 +1,7 @@
 import vine, { errors } from "@vinejs/vine";
-import { AuthTokenPayload, ReqPostLogin, ResPostLogin } from "~/dto/auth";
+import { ReqPostLogin, ResPostLogin } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt"
-import { signJwt } from "~/utils";
 
 async function validatePostLogin(req: ReqPostLogin) {
     try {
@@ -20,8 +19,6 @@ async function validatePostLogin(req: ReqPostLogin) {
 }
 
 export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
-    const config = useRuntimeConfig();
-
     const body = await readBody<ReqPostLogin>(event);
 
     await validatePostLogin(body);
@@ -36,19 +33,18 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
         throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "Wrong password" });
     }
 
-    const payload: AuthTokenPayload = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-    };
-
-    const token = await signJwt(payload, config.public.jwtSecret);
+    await setUserSession(event, {
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            role: user.role,
+        },
+    });
 
     const response: ResPostLogin = {
         data: {
-            token: token,
             isVerified: user.isVerified,
         },
     };

@@ -19,7 +19,6 @@ export type ReqPostLogin = {
 
 export type ResPostLogin = {
     data: {
-        token: string
         isVerified: boolean
     }
 }
