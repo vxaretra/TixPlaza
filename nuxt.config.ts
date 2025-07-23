@@ -34,6 +34,7 @@ export default defineNuxtConfig({
     'nuxt-quasar-ui',
     '@nuxtjs/leaflet',
     'dayjs-nuxt',
+    "nuxt-auth-utils"
   ],
 
   quasar: {
