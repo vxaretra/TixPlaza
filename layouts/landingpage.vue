@@ -19,13 +19,15 @@
         </q-toolbar-title>
 
         <!-- Auth Buttons, align on the right side -->
-        <q-btn v-if="!loggedIn" flat dense icon="assignment_ind" label="Masuk" class="mr-2 hidden sm:block"
-          @click="navigateTo('/auth/login')" />
-        <q-btn v-if="!loggedIn" push dense color="primary" label="Daftar" icon="person_add"
-          class="p-2 mr-5 hidden sm:block" @click="navigateTo('auth/register')" />
+        <AuthState v-slot="{ loggedIn, clear }">
+          <q-btn v-if="!loggedIn" flat dense icon="assignment_ind" label="Masuk" class="mr-2 hidden sm:block"
+            @click="navigateTo('/auth/login')" />
+          <q-btn v-if="!loggedIn" push dense color="primary" label="Daftar" icon="person_add"
+            class="p-2 mr-5 hidden sm:block" @click="navigateTo('auth/register')" />
 
-        <q-btn v-if="loggedIn" push dense color="primary" label="Keluar" class="p-2 mr-5 hidden sm:block"
-          @click="clear" />
+          <q-btn v-if="loggedIn" push dense color="primary" label="Keluar" class="p-2 mr-5 hidden sm:block"
+            @click="clear" />
+        </AuthState>
       </q-toolbar>
 
       <!-- Search and Menu Options - Only shown after scrolling -->
@@ -90,9 +92,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-
-const { loggedIn, clear, fetch } = useUserSession();
-// await fetch();
 
 // Ref untuk menyimpan status scroll
 const isScrolled = ref(false);
