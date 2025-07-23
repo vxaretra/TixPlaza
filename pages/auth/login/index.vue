@@ -65,6 +65,11 @@ import { ref, reactive } from "vue";
 import { useQuasar } from "quasar";
 import { navigateTo } from "nuxt/app";
 
+const { loggedIn } = useUserSession();
+if (loggedIn.value === true) {
+  navigateTo("/home");
+}
+
 const q = useQuasar();
 
 // Reactive property to hold the current image URL
