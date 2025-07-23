@@ -1,34 +1,34 @@
-import type { $Enums } from "@prisma/client"
-import type { JwtPayload } from "jsonwebtoken"
+import type { $Enums } from "@prisma/client";
+import type { JwtPayload } from "jsonwebtoken";
 
 export type ReqPostRegister = {
-    email: string
-    password: string
-    name: string
-    phoneNumber: string
-}
+    email: string;
+    password: string;
+    name: string;
+    phoneNumber: string;
+};
 
 export type ResPostRegister = {
-    data: { token: string }
-}
+    data: { message: string };
+};
 
 export type ReqPostLogin = {
-    email: string
-    password: string
-}
+    email: string;
+    password: string;
+};
 
 export type ResPostLogin = {
     data: {
-        isVerified: boolean
-    }
-}
+        isVerified: boolean;
+    };
+};
 
 export type AuthTokenPayload = {
-    id: number
-    name: string
-    email: string
-    phoneNumber: string
-    role: $Enums.Role
-}
+    id: number;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    role: $Enums.Role;
+};
 
-export type JwtAuthClaims = AuthTokenPayload & JwtPayload
+export type JwtAuthClaims = AuthTokenPayload & JwtPayload;

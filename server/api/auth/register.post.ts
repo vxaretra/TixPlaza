@@ -1,8 +1,8 @@
 import vine, { errors } from "@vinejs/vine";
-import { AuthTokenPayload, ReqPostRegister, ResPostRegister } from "~/dto/auth";
+import { ReqPostRegister, ResPostRegister } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt";
-import { randomFromInterval, signJwt } from "~/utils";
+import { randomFromInterval } from "~/utils";
 import { emailVerificationCode } from "~/server/utils/mailer";
 
 async function validatePostRegister(req: ReqPostRegister) {
@@ -35,12 +35,9 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
-    const config = useRuntimeConfig();
-
     const body = await readBody<ReqPostRegister>(event);
 
     await validatePostRegister(body);
-    console.log(body);
 
     const existingUser = await prisma.user.findFirst({
         where: { email: body.email },
@@ -80,18 +77,8 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
         });
     }
 
-    const payload: AuthTokenPayload = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-    };
-
-    const token = await signJwt(payload, config.public.jwtSecret);
-
     const response: ResPostRegister = {
-        data: { token: token },
+        data: { message: "Register successful" },
     };
 
     setResponseStatus(event, 201);

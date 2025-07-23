@@ -97,6 +97,8 @@ const login = async () => {
         timeout: 2000,
       });
       q.loading.hide();
+
+      // TODO: redirect to code verification page
       return;
     }
 

@@ -160,8 +160,6 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import CryptoJS from "crypto-js";
-const { $axios } = useNuxtApp();
 
 const { loggedIn } = useUserSession();
 if (loggedIn.value === true) {
@@ -170,8 +168,6 @@ if (loggedIn.value === true) {
 
 const router = useRouter();
 const q = useQuasar();
-
-const config = useRuntimeConfig();
 
 const currentImage = ref("/img/ticket.jpg");
 const isPwd = ref(true);
@@ -185,45 +181,20 @@ const registerForm = reactive({
   repeatPassword: "",
 });
 
-console.log(router.options.routes);
-
 async function register() {
   try {
     q.loading.show();
-    const response = await $axios.post("/api/auth/register", registerForm);
-    console.log("Registered:", response);
-    if (response.data.token) {
-      console.log("registered");
-      const token = CryptoJS.AES.encrypt(
-        response.data.token,
-        config.jwtSecret
-      ).toString();
-      console.log("asdasdas");
-      localStorage.setItem("4c355", token);
-      q.notify({
-        type: "positive",
-        message: "Login Sukses",
-        position: "top",
-        timeout: 2000,
-      });
 
-      let timer = setTimeout(async () => {
-        q.loading.hide();
-        timer = void 0;
-        await navigateTo("/home");
-      }, 2000);
-    } else {
-      q.notify({
-        type: "negative",
-        message: response.data.message,
-        position: "top",
-        timeout: 2000,
-      });
-      q.loading.hide();
-    }
+    await $fetch("/api/auth/register", {
+      method: "POST",
+      body: registerForm,
+    });
+
+    q.loading.hide();
+
+    // TODO: redirect to code verification page
+    await navigateTo("/auth/login", { replace: true });
   } catch (error) {
-    console.error("Error registering:", error);
-    console.log(error.response);
     q.notify({
       type: "negative",
       message: error.response.data.message,
