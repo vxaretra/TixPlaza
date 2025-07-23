@@ -65,7 +65,7 @@ import { ref, reactive } from "vue";
 import { useQuasar } from "quasar";
 import { navigateTo } from "nuxt/app";
 
-const { loggedIn } = useUserSession();
+const { loggedIn, fetch } = useUserSession();
 if (loggedIn.value === true) {
   navigateTo("/home");
 }
@@ -101,7 +101,9 @@ const login = async () => {
     }
 
     q.loading.hide();
-    await navigateTo("/home");
+    await fetch();
+
+    await navigateTo("/home", { replace: true });
   } catch (error) {
     q.notify({
       type: "negative",
@@ -110,6 +112,8 @@ const login = async () => {
       timeout: 2000,
     });
     q.loading.hide();
+  } finally {
+    fet
   }
 };
 </script>

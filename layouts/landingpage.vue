@@ -19,46 +19,22 @@
         </q-toolbar-title>
 
         <!-- Auth Buttons, align on the right side -->
-        <q-btn
-          flat
-          dense
-          icon="assignment_ind"
-          label="Masuk"
-          class="mr-2 hidden sm:block"
-          @click="$router.push('auth/login')"
-        />
-        <q-btn
-          push
-          dense
-          color="primary"
-          label="Daftar"
-          icon="person_add"
-          class="p-2 mr-5 hidden sm:block"
-          @click="$router.push('auth/register')"
-        />
+        <q-btn v-if="!loggedIn" flat dense icon="assignment_ind" label="Masuk" class="mr-2 hidden sm:block"
+          @click="navigateTo('/auth/login')" />
+        <q-btn v-if="!loggedIn" push dense color="primary" label="Daftar" icon="person_add"
+          class="p-2 mr-5 hidden sm:block" @click="navigateTo('auth/register')" />
+
+        <q-btn v-if="loggedIn" push dense color="primary" label="Keluar" class="p-2 mr-5 hidden sm:block"
+          @click="clear" />
       </q-toolbar>
 
       <!-- Search and Menu Options - Only shown after scrolling -->
-      <div
-        v-if="isScrolled"
-        class="flex flex-col md:flex-row justify-between px-4 md:px-8 pb-5 items-center"
-      >
+      <div v-if="isScrolled" class="flex flex-col md:flex-row justify-between px-4 md:px-8 pb-5 items-center">
         <!-- Search Input with different sizes for responsiveness -->
-        <q-input
-          outlined
-          v-model="text"
-          label="Cari Tiket"
-          rounded
-          bg-color="white"
-          class="w-full md:w-2/6 mb-3 md:mb-0"
-        >
+        <q-input outlined v-model="text" label="Cari Tiket" rounded bg-color="white"
+          class="w-full md:w-2/6 mb-3 md:mb-0">
           <template v-slot:append>
-            <q-icon
-              v-if="text !== ''"
-              name="close"
-              @click="text = ''"
-              class="cursor-pointer"
-            />
+            <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
             <q-icon name="search" class="cursor-pointer" />
           </template>
         </q-input>
@@ -66,27 +42,9 @@
         <!-- Navigation Links for Categories -->
         <div class="text-center items-center flex justify-center">
           <q-btn flat no-caps dense label="Konser" class="text-lg font-mono" />
-          <q-btn
-            flat
-            no-caps
-            dense
-            label="Stand Up"
-            class="ml-2 text-lg font-mono"
-          />
-          <q-btn
-            flat
-            no-caps
-            dense
-            label="Event"
-            class="ml-2 text-lg font-mono"
-          />
-          <q-btn
-            flat
-            no-caps
-            dense
-            label="Seminar"
-            class="ml-2 text-lg font-mono"
-          />
+          <q-btn flat no-caps dense label="Stand Up" class="ml-2 text-lg font-mono" />
+          <q-btn flat no-caps dense label="Event" class="ml-2 text-lg font-mono" />
+          <q-btn flat no-caps dense label="Seminar" class="ml-2 text-lg font-mono" />
         </div>
       </div>
     </q-header>
@@ -113,21 +71,15 @@
         <q-icon name="facebook" />
       </div>
       <div class="flex justify-center space-x-5 pt-3">
-        <NuxtLink
-          :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline"
-          >Apa itu TixPlaza?</NuxtLink
-        >
-        <NuxtLink
-          :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline"
-          >| Syarat dan Ketentuan</NuxtLink
-        >
-        <NuxtLink
-          :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline"
-          >| Kebijakan Privasi</NuxtLink
-        >
+        <NuxtLink :to="{ name: 'auth-register' }"
+          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">Apa itu TixPlaza?
+        </NuxtLink>
+        <NuxtLink :to="{ name: 'auth-register' }"
+          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">| Syarat dan Ketentuan
+        </NuxtLink>
+        <NuxtLink :to="{ name: 'auth-register' }"
+          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">| Kebijakan Privasi
+        </NuxtLink>
       </div>
       <div align="center" class="pt-5">
         <p class="text-sm">©2023. TixPlaza. All Rights Reserved.</p>
@@ -138,6 +90,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+
+const { loggedIn, clear, fetch } = useUserSession();
+// await fetch();
 
 // Ref untuk menyimpan status scroll
 const isScrolled = ref(false);
@@ -166,6 +121,7 @@ const headerClass = computed(() => {
 
 <style scoped>
 .q-header {
-  transition: background-color 0.3s, color 0.3s; /* Transisi halus */
+  transition: background-color 0.3s, color 0.3s;
+  /* Transisi halus */
 }
 </style>
