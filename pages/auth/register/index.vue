@@ -163,6 +163,11 @@ import { useQuasar } from "quasar";
 import CryptoJS from "crypto-js";
 const { $axios } = useNuxtApp();
 
+const { loggedIn } = useUserSession();
+if (loggedIn.value === true) {
+  await navigateTo("/home");
+}
+
 const router = useRouter();
 const q = useQuasar();
 

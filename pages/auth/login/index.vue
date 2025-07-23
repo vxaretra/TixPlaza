@@ -67,7 +67,7 @@ import { navigateTo } from "nuxt/app";
 
 const { loggedIn, fetch } = useUserSession();
 if (loggedIn.value === true) {
-  navigateTo("/home");
+  await navigateTo("/home");
 }
 
 const q = useQuasar();
