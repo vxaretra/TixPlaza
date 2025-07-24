@@ -114,8 +114,6 @@ const login = async () => {
       timeout: 2000,
     });
     q.loading.hide();
-  } finally {
-    fet
   }
 };
 </script>
