@@ -1,5 +1,5 @@
 <script setup>
-const { loggedIn, user } = useUserSession();
+const { loggedIn, user, fetch } = useUserSession();
 if (loggedIn.value === false) {
     await navigateTo("/auth/login", { replace: true });
 }
@@ -15,6 +15,8 @@ const onSubmit = async () => {
     q.loading.show();
     try {
         await $fetch("/api/auth/verify", { method: "POST", body: { code: code.value } });
+        await fetch();
+        await navigateTo("/home");
     } catch (error) {
         q.notify({
             type: "negative",

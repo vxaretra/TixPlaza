@@ -183,10 +183,14 @@
 
 <script setup>
 import { ref } from "vue";
-// import Header from '@/components/Header.vue';
-// import Footer from '@/components/Footer.vue';
 import ProductCard from "./components/ProductCard.vue";
 import { useQuasar } from "quasar";
+
+const { loggedIn, user } = useUserSession();
+if (loggedIn.value === true && user.value.isVerified === false) {
+  await navigateTo("/auth/verify");
+}
+
 const { $axios } = useNuxtApp();
 
 const q = useQuasar();

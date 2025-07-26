@@ -44,5 +44,7 @@ export default defineEventHandler(async (event) => {
         data: { isVerified: true },
     });
 
+    await setUserSession(event, { user: { isVerified: true } });
+
     return "";
 });
