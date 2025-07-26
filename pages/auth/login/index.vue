@@ -88,22 +88,12 @@ const login = async () => {
       method: "POST",
       body: loginForm,
     });
+    await fetch();
 
-    if (data.isVerified == false) {
-      q.notify({
-        type: "negative",
-        message: "Akun belum diverifikasi, silahkan verifikasi melalui email",
-        position: "top",
-        timeout: 2000,
-      });
-      q.loading.hide();
-
-      // TODO: redirect to code verification page
+    if (data.isVerified === false) {
+      await navigateTo("/auth/verify");
       return;
     }
-
-    q.loading.hide();
-    await fetch();
 
     await navigateTo("/home", { replace: true });
   } catch (error) {
@@ -113,6 +103,7 @@ const login = async () => {
       position: "top",
       timeout: 2000,
     });
+  } finally {
     q.loading.hide();
   }
 };
