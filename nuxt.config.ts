@@ -37,6 +37,18 @@ export default defineNuxtConfig({
     "nuxt-auth-utils"
   ],
 
+  nitro: {
+    storage: {
+      redis: {
+        driver: "redis",
+        port: 6379,
+        host: "127.0.0.1",
+        username: "",
+        password: "",
+      },
+    },
+  },
+
   quasar: {
     // Configurable Component Defaults
     // components: {

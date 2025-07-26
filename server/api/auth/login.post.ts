@@ -2,6 +2,7 @@ import vine, { errors } from "@vinejs/vine";
 import { ReqPostLogin, ResPostLogin } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt";
+import { randomFromInterval } from "~/utils";
 
 async function validatePostLogin(req: ReqPostLogin) {
     try {
@@ -44,6 +45,23 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
             statusMessage: "Bad Request",
             message: "Wrong password",
         });
+    }
+
+    if (user.isVerified === false) {
+        const code = randomFromInterval(100000, 999999);
+        await useStorage("redis").setItem(`user:${user.id}:code`, code, {
+            ttl: 60,
+        });
+
+        try {
+            await emailVerificationCode(user.email, code);
+        } catch (error) {
+            throw createError({
+                statusCode: 500,
+                statusMessage: "Internal Server Error",
+                message: "Failed to send verification email",
+            });
+        }
     }
 
     await setUserSession(event, {

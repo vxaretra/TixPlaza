@@ -2,8 +2,6 @@ import vine, { errors } from "@vinejs/vine";
 import { ReqPostRegister, ResPostRegister } from "~/dto/auth";
 import { prisma } from "~/prisma/db";
 import bcrypt from "bcrypt";
-import { randomFromInterval } from "~/utils";
-import { emailVerificationCode } from "~/server/utils/mailer";
 
 async function validatePostRegister(req: ReqPostRegister) {
     try {
@@ -50,32 +48,14 @@ export default defineEventHandler<Promise<ResPostRegister>>(async (event) => {
         });
     }
 
-    const verificationCode: number = randomFromInterval(100000, 999999);
-
-    const user = await prisma.user.create({
+    await prisma.user.create({
         data: {
             email: body.email,
             password: await hashPassword(body.password),
             name: body.name,
             phoneNumber: body.phoneNumber,
-            verificationCode: {
-                create: {
-                    code: verificationCode,
-                },
-            },
         },
     });
-
-    try {
-        await emailVerificationCode(user.email, verificationCode);
-    } catch (error) {
-        console.error(error);
-        throw createError({
-            statusCode: 500,
-            statusMessage: "Internal Server Error",
-            message: "Failed to send verification email",
-        });
-    }
 
     const response: ResPostRegister = {
         data: { message: "Register successful" },
