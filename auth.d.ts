@@ -1,11 +1,13 @@
 import type { $Enums } from "@prisma/client";
 
-declare module '#auth-utils' {
+declare module "#auth-utils" {
     interface User {
         id: number;
         name: string;
         email: string;
+        phoneNumber: string;
         role: $Enums.Role;
+        isVerified: boolean;
     }
 
     interface UserSession {
@@ -17,4 +19,4 @@ declare module '#auth-utils' {
     }
 }
 
-export { }
+export {};

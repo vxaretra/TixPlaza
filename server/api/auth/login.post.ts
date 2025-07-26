@@ -71,6 +71,7 @@ export default defineEventHandler<Promise<ResPostLogin>>(async (event) => {
             email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
+            isVerified: user.isVerified,
         },
     });
 
