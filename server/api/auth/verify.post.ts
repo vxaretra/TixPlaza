@@ -1,20 +1,13 @@
 import vine from "@vinejs/vine";
 import { prisma } from "~/prisma/db";
-import { getClaims } from "~/server/utils/auth";
 
 const bodySchema = vine.object({
     code: vine.number().range([100000, 999999]),
 });
 
 export default defineEventHandler(async (event) => {
-    const claims = await getClaims(event);
-    if (claims === null) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: "Unauthorized",
-            message: "No Authorization header found",
-        });
-    }
+    const session = await requireUserSession(event);
+    const user = session.user;
 
     const [err, body] = await readValidatedBody(event, (data) =>
         vine.tryValidate({ schema: bodySchema, data: data }),
@@ -27,10 +20,18 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const verificationCode = await prisma.verificationCode.findFirst({
-        where: { code: body.code, userId: claims.id },
-    });
-    if (verificationCode === null) {
+    const storedCode = await useStorage("redis").getItem(
+        `user:${user.id}:code`,
+    );
+    if (storedCode === null) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Bad Request",
+            message: "Code expired, please resend another code",
+        });
+    }
+
+    if (body.code.toString() !== storedCode.toString()) {
         throw createError({
             statusCode: 400,
             statusMessage: "Bad Request",
@@ -39,7 +40,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await prisma.user.update({
-        where: { id: claims.id },
+        where: { id: user.id },
         data: { isVerified: true },
     });
 
