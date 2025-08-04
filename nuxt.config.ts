@@ -26,15 +26,14 @@ export default defineNuxtConfig({
   },
 
   css: [
-
+    '~/assets/css/main.css'
   ],
 
   modules: [
-    "@nuxtjs/tailwindcss",
-    'nuxt-quasar-ui',
     '@nuxtjs/leaflet',
     'dayjs-nuxt',
-    "nuxt-auth-utils"
+    "nuxt-auth-utils",
+    '@nuxt/ui'
   ],
 
   nitro: {
@@ -47,23 +46,5 @@ export default defineNuxtConfig({
         password: "",
       },
     },
-  },
-
-  quasar: {
-    // Configurable Component Defaults
-    // components: {
-    //   defaults: {
-    //     QBtn: {
-    //       dense: true,
-    //       flat: true,
-    //     },
-    //     QInput: {
-    //       dense: true
-    //     }
-    //   }
-    // }
-    plugins:
-      ['Notify', 'Loading']
-    ,
   },
 })

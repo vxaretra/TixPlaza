@@ -9,7 +9,7 @@
           Welcome
         </h2>
         <form @submit.prevent="login" class="space-y-2 sm:space-y-3">
-          <q-input type="text" v-model="loginForm.email" label="Email" outlined dense color="black" class="rounded-lg"
+          <!-- <q-input type="text" v-model="loginForm.email" label="Email" outlined dense color="black" class="rounded-lg"
             input-class="text-white" :rules="[
               (val) => !!val || 'Email is required',
               (val) =>
@@ -19,13 +19,13 @@
             <template v-slot:prepend>
               <q-icon name="mail" />
             </template>
-          </q-input>
+          </q-input> -->
           <div>
             <NuxtLink :to="{ name: 'auth-register' }"
               class="flex justify-end text-sm text-cyan-950 focus:text-cyan-800 hover:text-cyan-800 hover:underline">
               Lupa
               Password?</NuxtLink>
-            <q-input v-model="loginForm.password" :type="isPwd ? 'password' : 'text'" label="Password" outlined dense
+            <!-- <q-input v-model="loginForm.password" :type="isPwd ? 'password' : 'text'" label="Password" outlined dense
               color="black" class="rounded-lg" input-class="text-white" :rules="[
                 (val) => !!val || 'Password is required',
                 (val) =>
@@ -38,7 +38,7 @@
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" @click="isPwd = !isPwd"
                   class="cursor-pointer" />
               </template>
-            </q-input>
+            </q-input> -->
           </div>
           <button type="submit"
             class="w-full p-3 sm:p-4 rounded-full text-cyan-950 bg-cyan-600 hover:bg-cyan-700 font-medium transition-colors duration-150">
@@ -62,7 +62,6 @@
 
 <script setup>
 import { ref, reactive } from "vue";
-import { useQuasar } from "quasar";
 import { navigateTo } from "nuxt/app";
 
 const { loggedIn, fetch } = useUserSession();
@@ -70,7 +69,6 @@ if (loggedIn.value === true) {
   await navigateTo("/home");
 }
 
-const q = useQuasar();
 
 // Reactive property to hold the current image URL
 const currentImage = ref("/img/ticket.jpg"); // Default image
@@ -82,7 +80,7 @@ const loginForm = reactive({
 });
 
 const login = async () => {
-  q.loading.show();
+  // q.loading.show();
   try {
     const { data } = await $fetch("/api/auth/login", {
       method: "POST",
@@ -97,14 +95,14 @@ const login = async () => {
 
     await navigateTo("/home", { replace: true });
   } catch (error) {
-    q.notify({
-      type: "negative",
-      message: error.response?.data?.message || "Unknown Error",
-      position: "top",
-      timeout: 2000,
-    });
+    // q.notify({
+    //   type: "negative",
+    //   message: error.response?.data?.message || "Unknown Error",
+    //   position: "top",
+    //   timeout: 2000,
+    // });
   } finally {
-    q.loading.hide();
+    // q.loading.hide();
   }
 };
 </script>
