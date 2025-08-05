@@ -1,110 +1,23 @@
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center p-6 lg:p-20 bg-gradient-to-br from-cyan-500 via-cyan-700 to-cyan-800 dark:from-blue-400 dark:via-blue-600 dark:to-blue-800">
-    <div
-      class="flex flex-col lg:flex-row w-full max-w-4xl shadow-lg rounded-lg overflow-hidden backdrop-blur-md bg-white/10">
-      <!-- Left Panel: Form Section -->
-      <div class="flex flex-col justify-center p-8 sm:p-10 w-full lg:w-2/3 bg-white/10 dark:bg-gray-800 text-white">
-        <h2 class="text-cyan-950 text-3xl sm:text-4xl font-semibold mb-6 text-center lg:text-left">
-          Welcome
-        </h2>
-        <form @submit.prevent="login" class="space-y-2 sm:space-y-3">
-          <!-- <q-input type="text" v-model="loginForm.email" label="Email" outlined dense color="black" class="rounded-lg"
-            input-class="text-white" :rules="[
-              (val) => !!val || 'Email is required',
-              (val) =>
-                /\S+@\S+\.\S+/.test(val) ||
-                'Please enter a valid email address',
-            ]">
-            <template v-slot:prepend>
-              <q-icon name="mail" />
-            </template>
-          </q-input> -->
-          <div>
-            <NuxtLink :to="{ name: 'auth-register' }"
-              class="flex justify-end text-sm text-cyan-950 focus:text-cyan-800 hover:text-cyan-800 hover:underline">
-              Lupa
-              Password?</NuxtLink>
-            <!-- <q-input v-model="loginForm.password" :type="isPwd ? 'password' : 'text'" label="Password" outlined dense
-              color="black" class="rounded-lg" input-class="text-white" :rules="[
-                (val) => !!val || 'Password is required',
-                (val) =>
-                  val.length > 6 || 'Password must be longer than 6 characters',
-              ]">
-              <template v-slot:prepend>
-                <q-icon name="lock" />
-              </template>
-              <template v-slot:append>
-                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" @click="isPwd = !isPwd"
-                  class="cursor-pointer" />
-              </template>
-            </q-input> -->
-          </div>
-          <button type="submit"
-            class="w-full p-3 sm:p-4 rounded-full text-cyan-950 bg-cyan-600 hover:bg-cyan-700 font-medium transition-colors duration-150">
-            Sign In
-          </button>
-          <div class="flex justify-center">
-            doesn't have an account?
-            <NuxtLink :to="{ name: 'auth-register' }" class="ml-1 text-cyan-950 hover:text-cyan-800">Register Here
-            </NuxtLink>
-          </div>
-        </form>
-      </div>
+  <div>
+    <UCard variant="subtle">
+      <template #header>
+        <Placeholder class="h-8" />
+      </template>
 
-      <!-- Right Panel: Image Section -->
-      <div class="lg:w-1/3 w-full h-56 lg:h-auto flex items-center justify-center bg-gray-800 lg:bg-transparent">
-        <img :src="currentImage" alt="Decorative Image" class="object-cover w-full h-full" />
-      </div>
-    </div>
+      <Placeholder class="h-32" />
+
+      <template #footer>
+        <Placeholder class="h-8" />
+      </template>
+    </UCard>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
-import { navigateTo } from "nuxt/app";
-
-const { loggedIn, fetch } = useUserSession();
-if (loggedIn.value === true) {
-  await navigateTo("/home");
-}
-
-
-// Reactive property to hold the current image URL
-const currentImage = ref("/img/ticket.jpg"); // Default image
-const isPwd = ref(true);
-
-const loginForm = reactive({
-  email: "",
-  password: "",
+definePageMeta({
+  layout: "landingpage",
 });
-
-const login = async () => {
-  // q.loading.show();
-  try {
-    const { data } = await $fetch("/api/auth/login", {
-      method: "POST",
-      body: loginForm,
-    });
-    await fetch();
-
-    if (data.isVerified === false) {
-      await navigateTo("/auth/verify");
-      return;
-    }
-
-    await navigateTo("/home", { replace: true });
-  } catch (error) {
-    // q.notify({
-    //   type: "negative",
-    //   message: error.response?.data?.message || "Unknown Error",
-    //   position: "top",
-    //   timeout: 2000,
-    // });
-  } finally {
-    // q.loading.hide();
-  }
-};
 </script>
 
 <style scoped></style>

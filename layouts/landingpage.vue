@@ -1,126 +1,164 @@
-<template>
-  <q-layout view="hHh LpR fFf">
-    <q-header :class="headerClass" elevated height-hint="98">
-      <!-- Toolbar with Brand and Auth Buttons -->
-      <q-toolbar class="h-20">
-        <q-toolbar-title>
-          <!-- Show logo only on larger screens -->
-          <q-btn flat no-caps no-wrap class="ml-5" v-if="$q.screen.gt.xs">
-            <q-icon name="local_activity" size="28px" />
-            <p shrink class="font-semibold text-2xl md:text-4xl pl-1">
-              TixPlaza
-            </p>
-          </q-btn>
-          <!-- Show smaller logo for small screens -->
-          <q-btn flat no-caps no-wrap class="ml-2" v-else>
-            <q-icon name="local_activity" size="24px" />
-            <p shrink class="font-semibold text-xl pl-1">TixPlaza</p>
-          </q-btn>
-        </q-toolbar-title>
+<script setup lang="ts">
+import { ref } from "vue";
+import { useMediaQuery } from "@vueuse/core";
+import type { NavigationMenuItem } from "@nuxt/ui";
 
-        <!-- Auth Buttons, align on the right side -->
-        <AuthState v-slot="{ loggedIn, clear }">
-          <q-btn v-if="!loggedIn" flat dense icon="assignment_ind" label="Masuk" class="mr-2 hidden sm:block"
-            @click="navigateTo('/auth/login')" />
-          <q-btn v-if="!loggedIn" push dense color="primary" label="Daftar" icon="person_add"
-            class="p-2 mr-5 hidden sm:block" @click="navigateTo('auth/register')" />
+const isMobile = useMediaQuery("(max-width: 768px)");
 
-          <q-btn v-if="loggedIn" push dense color="primary" label="Keluar" class="p-2 mr-5 hidden sm:block"
-            @click="clear" />
-        </AuthState>
-      </q-toolbar>
+const items = computed(
+  () =>
+    [
+      {
+        icon: "i-lucide-shopping-basket",
+        slot: "carts" as const,
+        ...(isMobile.value
+          ? {} // No dropdown
+          : {
+              children: [
+                {
+                  label: "Not-Found",
+                  description:
+                    "Keranjang belanja Anda kosong. Silakan tambahkan produk ke keranjang.",
+                  to: "/asdasd",
+                },
+                {
+                  label: "Not-Found",
+                  description:
+                    "Keranjang belanja Anda kosong. Silakan tambahkan produk ke keranjang.",
+                },
+                {
+                  label: "Not-Found",
+                  description:
+                    "Keranjang belanja Anda kosong. Silakan tambahkan produk ke keranjang.",
+                },
+              ],
+            }),
+      },
+      {
+        label: "Daftar",
+        icon: "i-lucide-user-plus",
+        to: "/auth/register",
+      },
+      {
+        label: "Masuk",
+        icon: "i-lucide-user-lock",
+        to: "/auth/login",
+      },
+    ] satisfies NavigationMenuItem[]
+);
 
-      <!-- Search and Menu Options - Only shown after scrolling -->
-      <div v-if="isScrolled" class="flex flex-col md:flex-row justify-between px-4 md:px-8 pb-5 items-center">
-        <!-- Search Input with different sizes for responsiveness -->
-        <q-input outlined v-model="text" label="Cari Tiket" rounded bg-color="white"
-          class="w-full md:w-2/6 mb-3 md:mb-0">
-          <template v-slot:append>
-            <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
-            <q-icon name="search" class="cursor-pointer" />
-          </template>
-        </q-input>
+const isOpen = ref(false);
 
-        <!-- Navigation Links for Categories -->
-        <div class="text-center items-center flex justify-center">
-          <q-btn flat no-caps dense label="Konser" class="text-lg font-mono" />
-          <q-btn flat no-caps dense label="Stand Up" class="ml-2 text-lg font-mono" />
-          <q-btn flat no-caps dense label="Event" class="ml-2 text-lg font-mono" />
-          <q-btn flat no-caps dense label="Seminar" class="ml-2 text-lg font-mono" />
-        </div>
-      </div>
-    </q-header>
+const isDark = ref(true);
 
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-
-    <div bordered class="bg-slate-100 text-black py-4">
-      <q-toolbar>
-        <q-toolbar-title align="center">
-          <q-btn flat no-caps no-wrap class="p-5" v-if="$q.screen.gt.xs">
-            <q-icon name="local_activity" size="28px" />
-            <p shrink class="font-semibold text-2xl md:text-4xl pl-1">
-              TixPlaza
-            </p>
-          </q-btn>
-        </q-toolbar-title>
-      </q-toolbar>
-      <div align="center" class="text-black space-x-1" style="font-size: 2.5em">
-        <q-icon name="facebook" />
-        <q-icon name="facebook" />
-        <q-icon name="facebook" />
-        <q-icon name="facebook" />
-      </div>
-      <div class="flex justify-center space-x-5 pt-3">
-        <NuxtLink :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">Apa itu TixPlaza?
-        </NuxtLink>
-        <NuxtLink :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">| Syarat dan Ketentuan
-        </NuxtLink>
-        <NuxtLink :to="{ name: 'auth-register' }"
-          class="text-lg text-black focus:text-cyan-800 hover:text-cyan-800 hover:underline">| Kebijakan Privasi
-        </NuxtLink>
-      </div>
-      <div align="center" class="pt-5">
-        <p class="text-sm">©2023. TixPlaza. All Rights Reserved.</p>
-      </div>
-    </div>
-  </q-layout>
-</template>
-
-<script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
-
-// Ref untuk menyimpan status scroll
-const isScrolled = ref(false);
-
-// Fungsi untuk memeriksa posisi scroll dan mengubah status
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 300; // Jika scroll lebih dari 50px, ubah status
+const toggleDarkMode = () => {
+  const colorMode = useColorMode();
+  colorMode.preference = isDark.value ? "dark" : "light";
 };
-
-// Tambahkan dan bersihkan event listener saat komponen dimount dan di-unmount
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("scroll", handleScroll);
-});
-
-// Kelas dinamis untuk header
-const headerClass = computed(() => {
-  return isScrolled.value
-    ? "bg-white text-black shadow-lg" // Saat di-scroll
-    : "bg-cyan-600 text-white"; // Saat sebelum di-scroll
-});
 </script>
 
-<style scoped>
-.q-header {
-  transition: background-color 0.3s, color 0.3s;
-  /* Transisi halus */
-}
-</style>
+<template>
+  <div
+    class="flex items-center justify-center px-4 py-3 border-b border-gray-200 dark:border-[#0ea5e9]"
+  >
+    <div class="flex justify-between items-center w-full max-w-6xl">
+      <!-- Logo -->
+      <NuxtLink to="/home" class="font-bold text-2xl"
+        ><span class="text-cyan-600">
+          <UIcon name="i-lucide-tickets" class="size-5 mr-1" />Tix</span
+        >Plaza</NuxtLink
+      >
+      <div class="flex items-center space-x-2">
+        <USwitch
+          v-model="isDark"
+          color="neutral"
+          unchecked-icon="i-lucide-sun"
+          checked-icon="i-lucide-moon"
+          @update:model-value="toggleDarkMode"
+        />
+
+        <USeparator
+          orientation="vertical"
+          :color="isDark ? 'info' : 'neutral'"
+          class="h-5"
+        />
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:block">
+          <UNavigationMenu color="info" :items="items" class="w-full">
+            <template #carts-content="{ item }">
+              <div
+                v-if="item.children?.[0]?.label == 'Not-Found'"
+                class="flex flex-col items-center p-10 space-y-2"
+              >
+                <UIcon name="i-lucide-clipboard-plus" class="size-25" />
+                <p class="font-semibold text-center text-sm">
+                  Yahh, keranjang belanja Anda masih kosong nih.
+                </p>
+                <UButton
+                  icon="i-lucide-rocket"
+                  size="md"
+                  color="info"
+                  variant="solid"
+                  >Belanja Yukk</UButton
+                >
+              </div>
+
+              <ul v-else>
+                <li v-for="child in item.children" :key="child.label">
+                  <ULink
+                    class="text-sm text-left rounded-md p-3 transition-colors hover:bg-elevated/50"
+                  >
+                    <p class="font-medium text-highlighted">
+                      {{ child.label }}
+                    </p>
+                    <p class="text-muted line-clamp-2">
+                      {{ child.description }}
+                    </p>
+                  </ULink>
+                </li>
+              </ul>
+            </template>
+          </UNavigationMenu>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          class="md:hidden p-2 rounded-md border"
+          @click="isOpen = !isOpen"
+        >
+          <UIcon
+            :name="isOpen ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'"
+            class="w-6 h-6"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div v-if="isOpen" class="md:hidden border-t border-gray-200 px-4 py-2">
+    <UNavigationMenu color="info" :items="items" orientation="vertical">
+      <!-- Mobile override for `carts` slot -->
+      <template #carts="{ item }">
+        <ULink
+          to="/cart"
+          class="flex items-center gap-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <UIcon
+            name="i-lucide-shopping-basket"
+            class="w-4.5 h-4.5 -ml-0.5 text-[#90a1b9] dark:text-[#62748e]"
+          />
+          Keranjang
+        </ULink>
+      </template>
+    </UNavigationMenu>
+  </div>
+
+  <!-- Page Content -->
+  <UContainer class="pt-4">
+    <router-view />
+  </UContainer>
+
+  <!-- Footer -->
+</template>

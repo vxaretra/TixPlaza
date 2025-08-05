@@ -19,6 +19,11 @@
 
 <script setup>
 import ProductCard from './components/ProductCard.vue';
+
+definePageMeta({
+  layout: "landingpage",
+});
+
 </script>
 
 <style scoped></style>
