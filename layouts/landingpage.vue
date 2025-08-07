@@ -11,6 +11,7 @@ const items = computed(
       {
         icon: "i-lucide-shopping-basket",
         slot: "carts" as const,
+        to: "#",
         ...(isMobile.value
           ? {} // No dropdown
           : {
@@ -47,34 +48,39 @@ const items = computed(
     ] satisfies NavigationMenuItem[]
 );
 
+const colorMode = useColorMode();
+colorMode.preference = "light"; // Default to light mode
 const isOpen = ref(false);
 
-const isDark = ref(true);
+const isDark = ref(false);
 
 const toggleDarkMode = () => {
-  const colorMode = useColorMode();
   colorMode.preference = isDark.value ? "dark" : "light";
 };
 </script>
 
 <template>
-  <div
-    class="flex items-center justify-center px-4 py-3 border-b border-gray-200 dark:border-[#0ea5e9]"
-  >
-    <div class="flex justify-between items-center w-full max-w-6xl">
+  <div class="px-7 py-3 border-b border-gray-200 dark:border-[#0ea5e9]">
+    <div class="grid grid-cols-12 gap-4 mb-2">
+      <!-- <div class="flex justify-between items-center w-full"> -->
       <!-- Logo -->
-      <NuxtLink to="/home" class="font-bold text-2xl"
-        ><span class="text-cyan-600">
-          <UIcon name="i-lucide-tickets" class="size-5 mr-1" />Tix</span
-        >Plaza</NuxtLink
+      <div class="col-span-2 xl:col-start-3 flex items-center">
+        <NuxtLink to="/home" class="flex font-bold text-2xl items-center"
+          ><UIcon name="i-lucide-tickets" class="size-5 mr-1 text-cyan-600" />
+          <span class="text-cyan-600"> Tix</span>Plaza
+        </NuxtLink>
+      </div>
+
+      <div
+        class="col-span-10 xl:col-span-6 flex justify-end items-center gap-4"
       >
-      <div class="flex items-center space-x-2">
         <USwitch
           v-model="isDark"
           color="neutral"
           unchecked-icon="i-lucide-sun"
           checked-icon="i-lucide-moon"
           @update:model-value="toggleDarkMode"
+          :ui="{ base: 'cursor-pointer' }"
         />
 
         <USeparator
@@ -133,11 +139,16 @@ const toggleDarkMode = () => {
           />
         </button>
       </div>
+      <!-- </div> -->
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 mb-2">
+      <div class="col-span-2 xl:col-start-3 flex items-center">sadsads</div>
     </div>
   </div>
 
   <!-- Mobile Menu Dropdown -->
-  <div v-if="isOpen" class="md:hidden border-t border-gray-200 px-4 py-2">
+  <div v-if="isOpen" class="md:hidden border-b border-gray-200 px-4 py-2">
     <UNavigationMenu color="info" :items="items" orientation="vertical">
       <!-- Mobile override for `carts` slot -->
       <template #carts="{ item }">
@@ -162,3 +173,9 @@ const toggleDarkMode = () => {
 
   <!-- Footer -->
 </template>
+
+<style scoped>
+::v-deep(.switch-container) {
+  cursor: pointer;
+}
+</style>

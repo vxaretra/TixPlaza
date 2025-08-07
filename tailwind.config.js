@@ -2,6 +2,7 @@
 export default {
   important: true,
   content: [],
+  safelist: ['cursor-pointer'],
   theme: {
     screens: {
       'sm': '640px',
