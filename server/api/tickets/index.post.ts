@@ -1,77 +1,89 @@
+import { ca } from "@nuxt/ui/runtime/locale/index.js";
 import vine, { errors } from "@vinejs/vine";
 import { ReqPostTickets, ResPostTickets } from "~/dto/tickets";
 import { prisma } from "~/prisma/db";
 
 async function validatePostTickets(req: ReqPostTickets) {
-    try {
-        const schema = vine.object({
-            name: vine.string().trim().minLength(1).maxLength(255),
-            copywriting: vine.string().minLength(1).maxLength(4096),
-            start: vine.date({ formats: "YYYY-MM-DD HH:mm" }),
-            end: vine
-                .date({ formats: "YYYY-MM-DD HH:mm" })
-                .afterOrSameAs("start"),
-            price: vine.number().min(0),
-            quota: vine.number().min(0),
-            medias: vine.array(vine.string().url()),
-        });
+  try {
+    const schema = vine.object({
+      name: vine.string().trim().minLength(1).maxLength(255),
+      copywriting: vine.string().minLength(1).maxLength(4096),
+      start: vine.date({ formats: "YYYY-MM-DD HH:mm" }),
+      end: vine.date({ formats: "YYYY-MM-DD HH:mm" }).afterOrSameAs("start"),
+      price: vine.number().min(0),
+      quota: vine.number().min(0),
+      medias: vine.array(vine.string().url()),
+    });
 
-        await vine.validate({ schema: schema, data: req });
-    } catch (err) {
-        if (err instanceof errors.E_VALIDATION_ERROR) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: "Bad Request",
-                message: "Invalid input",
-                data: err.messages,
-            });
-        }
+    await vine.validate({ schema: schema, data: req });
+  } catch (err) {
+    if (err instanceof errors.E_VALIDATION_ERROR) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Bad Request",
+        message: "Invalid input",
+        data: err.messages,
+      });
     }
+  }
 }
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody<ReqPostTickets>(event);
+  const body = await readBody<ReqPostTickets>(event);
 
-    await validatePostTickets(body);
+  await validatePostTickets(body);
 
-    const ticket = await prisma.ticket.create({
-        data: {
-            name: body.name,
-            copywriting: body.copywriting,
-            start: new Date(body.start),
-            end: new Date(body.end),
-            price: body.price,
-            quota: body.quota,
-            lat: body.lat,
-            lon: body.lon,
-            medias: {
-                create: body.medias.map((media) => {
-                    return { url: media };
-                }),
-            },
-        },
-        include: {
-            medias: true,
-        },
-    });
+  const ticket = await prisma.ticket.create({
+    data: {
+      name: body.name,
+      copywriting: body.copywriting,
+      start: new Date(body.start),
+      end: new Date(body.end),
+      price: body.price,
+      quota: body.quota,
+      lat: body.lat,
+      lon: body.lon,
+      medias: {
+        create: body.medias.map((media) => {
+          return { url: media };
+        }),
+      },
+      categories: {
+        connect: body.categories.map((categoryId) => {
+          return { categoryId: categoryId };
+        }),
+      },
+    },
+    include: {
+      medias: true,
+      categories: true,
+    },
+  });
 
-    const response: ResPostTickets = {
-        data: {
-            id: ticket.id,
-            name: ticket.name,
-            copywriting: ticket.copywriting,
-            start: ticket.start.toISOString(),
-            end: ticket.end.toISOString(),
-            price: ticket.price.toNumber(),
-            quota: ticket.quota,
-            lat: ticket.lat,
-            lon: ticket.lon,
-            medias: ticket.medias.map((media) => {
-                return { id: media.id, url: media.url };
-            }),
-        },
-    };
+  const response: ResPostTickets = {
+    data: {
+      id: ticket.id,
+      name: ticket.name,
+      copywriting: ticket.copywriting,
+      start: ticket.start.toISOString(),
+      end: ticket.end.toISOString(),
+      price: ticket.price.toNumber(),
+      quota: ticket.quota,
+      lat: ticket.lat,
+      lon: ticket.lon,
+      medias: ticket.medias.map((media) => {
+        return { id: media.id, url: media.url };
+      }),
+      categories: ticket.categories.map((category) => {
+        return {
+          categoryId: category.categoryId,
+          name: category.name,
+          icon: category.icon,
+        };
+      }),
+    },
+  };
 
-    setResponseStatus(event, 201);
-    return response;
+  setResponseStatus(event, 201);
+  return response;
 });

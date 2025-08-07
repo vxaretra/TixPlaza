@@ -57,6 +57,7 @@ model Ticket {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
+  categories   CategoriesMaster[]
   medias       TicketMedia[]
   orderTickets OrderTickets[]
   carts        Cart[]
@@ -116,4 +117,12 @@ model Cart {
   ticket Ticket @relation(fields: [ticketId], references: [id])
 
   @@id([userId, ticketId])
+}
+
+model CategoriesMaster {
+  categoryId Int @id @default(autoincrement())
+  name String
+  icon String
+  
+  tickets Ticket[]
 }

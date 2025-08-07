@@ -29,8 +29,8 @@
 
         <!-- Category Dropdown -->
         <UInputMenu
-          :items="users"
-          :loading="userStatus === 'pending'"
+          :items="categories"
+          :loading="categoriesLoading"
           placeholder="Kategori"
           variant="none"
           class="w-full md:w-48"
@@ -102,7 +102,9 @@
 <script setup lang="ts">
 import ProductCard from "./components/ProductCard.vue";
 import Carousel from "./components/Carousel.vue";
-import type { AvatarProps } from "@nuxt/ui";
+
+const { $axios } = useNuxtApp();
+const axios = $axios as typeof import("axios").default;
 
 definePageMeta({
   layout: "landingpage",
@@ -141,22 +143,40 @@ function onOpen() {
   }
 }
 
-const { data: usersData, status: userStatus } = await useFetch(
-  "https://jsonplaceholder.typicode.com/users",
-  {
-    key: "typicode-users",
-    transform: (data: { id: number; name: string }[]) => {
-      return data?.map((user) => ({
-        label: user.name,
-        value: String(user.id),
-        icon: String("i-lucide-volleyball"),
-      }));
-    },
-    lazy: true,
-  }
-);
+type RespCategories = {
+  label: string;
+  icon: string;
+};
 
-const users = computed(() => usersData.value ?? []);
+const categories = ref<RespCategories[]>([]);
+const categoriesLoading = ref(false);
+
+const getCategories = async () => {
+  try {
+    categoriesLoading.value = true;
+    const { data } = await axios.get("/api/master/categories");
+    console.log(data);
+    const newData =
+      data != null
+        ? (data.data as RespCategories[]).map((obj, index) => ({
+            ...obj,
+          }))
+        : [];
+
+    // paginationConfig.total = data.totalElements;
+    categories.value = newData;
+    console.log(categories.value);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    console.log("Categories fetched successfully");
+    categoriesLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  getCategories();
+});
 </script>
 
 <style scoped></style>
