@@ -23,6 +23,7 @@
     "defu": "^6.1.4",
     "firebase": "^10.14.1",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^8.0.5",
     "nodemailer": "^6.10.1",
     "nuxt": "^3.18.1",
     "nuxt-auth-utils": "^0.5.23",

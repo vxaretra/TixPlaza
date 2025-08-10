@@ -13,6 +13,10 @@ export default defineNuxtConfig({
     smtpPass: "",
     xenditKey: "",
     xenditWebhookToken: "",
+    minioEndpoint: "",
+    minioPort: "",
+    minioAccessKey: "",
+    minioSecretKey: "",
     public: {
       baseUrl: "",
       jwtSecret: "",
