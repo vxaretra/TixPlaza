@@ -29,9 +29,10 @@
 
         <!-- Category Dropdown -->
         <UInputMenu
+          v-model="selectedCategory"
+          placeholder="Kategori"
           :items="categories"
           :loading="categoriesLoading"
-          placeholder="Kategori"
           variant="none"
           class="w-full md:w-48"
         >
@@ -73,8 +74,11 @@
 
           <UButton
             size="xl"
+            color="secondary"
             class="w-full md:w-1/6"
-            :ui="{ base: 'rounded-none rounded-r-lg bg-cyan-600' }"
+            :ui="{
+              base: 'rounded-none rounded-r-lg bg-cyan-600 hover:bg-cyan-700 cursor-pointer',
+            }"
           >
             Search
           </UButton>
@@ -82,35 +86,54 @@
       </div>
     </div>
 
-    <ProductCard />
+    <div
+      v-for="(items, categoryName) in ticketperCategories"
+      :key="categoryName"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-semibold">{{ categoryName }}</h3>
 
-    asdsad
-    <UCard variant="subtle">
-      <template #header>
-        <Placeholder class="h-8" />
-      </template>
-
-      <Placeholder class="h-32" />
-
-      <template #footer>
-        <Placeholder class="h-8" />
-      </template>
-    </UCard>
+        <UButton
+          size="md"
+          color="secondary"
+          class="bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
+          >View All</UButton
+        >
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-5">
+        <div
+          v-for="(product, index) in ticketperCategories[categoryName]"
+          :key="index"
+          class="hover:scale-105 transition-transform duration-300 cursor-pointer"
+          @click="console.log('Product clicked:', product.name)"
+        >
+          <ProductCard
+            :name="product.name"
+            :description="product.copywriting"
+            :start="product.start"
+            :end="product.end"
+            :price="product.price"
+            :image="product.image"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import ProductCard from "./components/ProductCard.vue";
 import Carousel from "./components/Carousel.vue";
+import type { ResGetTickets } from "~/dto/tickets";
+import { compileScript } from "vue/compiler-sfc";
 
 const { $axios } = useNuxtApp();
 const axios = $axios as typeof import("axios").default;
+const search = useTemplateRef("search");
 
 definePageMeta({
   layout: "landingpage",
 });
-
-const search = useTemplateRef("search");
 
 defineShortcuts({
   "/": () => {
@@ -118,6 +141,7 @@ defineShortcuts({
   },
 });
 
+// Fetch cities from API
 const {
   data: citiesResponse,
   status: citiesStatus,
@@ -143,19 +167,31 @@ function onOpen() {
   }
 }
 
+// Fetch categories from API
 type RespCategories = {
+  id: number;
   label: string;
   icon: string;
 };
 
 const categories = ref<RespCategories[]>([]);
+
 const categoriesLoading = ref(false);
+
+const selectedCategory = ref<RespCategories>(categories.value[1]);
+
+watch(selectedCategory, (newVal) => {
+  console.log("Selected category changed:", newVal);
+  if (newVal) {
+    params.value.categoryIds = String(newVal.id);
+    getTicketbyCategories();
+  }
+});
 
 const getCategories = async () => {
   try {
     categoriesLoading.value = true;
     const { data } = await axios.get("/api/master/categories");
-    console.log(data);
     const newData =
       data != null
         ? (data.data as RespCategories[]).map((obj, index) => ({
@@ -174,8 +210,94 @@ const getCategories = async () => {
   }
 };
 
-onMounted(() => {
-  getCategories();
+// Fetch tickets by categories
+const loading = ref(false);
+
+type TicketItem = ResGetTickets["data"][number];
+
+interface TicketsResponse {
+  data: TicketItem[];
+  pagination?: {
+    total: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+  };
+}
+
+const ticket = ref<TicketItem[]>([]);
+
+const params = ref({
+  q: "",
+  categoryIds: "",
+  page: 1,
+  limit: 10,
+});
+
+const getTicketbyCategories = async () => {
+  try {
+    loading.value = true;
+    const { data } = await axios.get<TicketsResponse>("/api/tickets/", {
+      params: params.value,
+    });
+    console.log(data);
+    const newData =
+      data != null
+        ? data.data.map((obj, index) => ({
+            ...obj,
+          }))
+        : [];
+
+    // paginationConfig.total = data.totalElements;
+    ticket.value = newData;
+    console.log(ticket.value);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    console.log("Categories fetched successfully");
+    loading.value = false;
+  }
+};
+
+const ticketperCategories = ref<Record<string, any[]>>({});
+
+const getTicketperCategories = async (category: any) => {
+  try {
+    loading.value = true;
+    console.log("Fetching tickets for category:", category);
+    const { data } = await axios.get<TicketsResponse>("/api/tickets/", {
+      params: {
+        categoryIds: String(category.id),
+        limit: 4,
+        page: 1,
+        sortBy: "id",
+        sortOrder: "desc",
+      },
+    });
+    console.log(data);
+    ticketperCategories.value[category.label] =
+      data != null
+        ? data.data.map((obj, index) => ({
+            ...obj,
+          }))
+        : [];
+    console.log(category.id, ticketperCategories.value);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    console.log("Categories fetched successfully");
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await getCategories();
+  for (const category of categories.value) {
+    if (category.id != 0) {
+      console.log(category);
+      getTicketperCategories(category);
+    }
+  }
 });
 </script>
 

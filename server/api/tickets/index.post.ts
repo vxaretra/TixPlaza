@@ -13,6 +13,7 @@ async function validatePostTickets(req: ReqPostTickets) {
       price: vine.number().min(0),
       quota: vine.number().min(0),
       medias: vine.array(vine.string().url()),
+      categories: vine.number().min(0),
     });
 
     await vine.validate({ schema: schema, data: req });
